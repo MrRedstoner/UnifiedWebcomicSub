@@ -29,8 +29,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests()
 			.antMatchers("/built/**", "/main.css")
 				.permitAll()
-			//.antMatchers("/index.html", "/api/sources")//TODO breaks auth access?!
-			//	.anonymous()// TODO set up nicely
+			.antMatchers("/index.html", "/api/sources")
+				.permitAll()// TODO set up nicely
 			.anyRequest()
 				.authenticated()
 			.and()
