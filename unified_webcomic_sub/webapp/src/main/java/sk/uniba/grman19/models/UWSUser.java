@@ -6,12 +6,16 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity(name = "uws_user")
 public class UWSUser extends BaseEntity {
 	/** generated */
 	private static final long serialVersionUID = 3755946416573106039L;
+	public static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
 	private String name;
 	@JsonIgnore
@@ -31,12 +35,34 @@ public class UWSUser extends BaseEntity {
 	@JoinColumn(name = "id", referencedColumnName = "uid")
 	private MailSettings mailSettings;
 
+	public UWSUser() {
+	}
+
+	public UWSUser(String name, String password, boolean owner, boolean admin, boolean createPost, boolean createSource, boolean editSource, boolean editGroup) {
+		this.name = name;
+		this.setPassword(password);
+		this.owner = owner;
+		this.admin = admin;
+		this.createPost = createPost;
+		this.createSource = createSource;
+		this.editSource = editSource;
+		this.editGroup = editGroup;
+	}
+
 	public String getName() {
 		return name;
 	}
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = PASSWORD_ENCODER.encode(password);
 	}
 
 	public Boolean getOwner() {
