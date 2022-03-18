@@ -1,7 +1,10 @@
 package sk.uniba.grman19.models;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -24,7 +27,9 @@ public class UWSUser extends BaseEntity {
 	@Column(name = "edit_group")
 	private Boolean editGroup;
 
-	// TODO mapped MailSettings
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumn(name = "id", referencedColumnName = "uid")
+	private MailSettings mailSettings;
 
 	public String getName() {
 		return name;

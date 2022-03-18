@@ -2,20 +2,28 @@ package sk.uniba.grman19.models;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.OneToOne;
 
 @Entity(name = "mail_setting")
 public class MailSettings extends BaseEntity {
 	/** generated */
 	private static final long serialVersionUID = -504521804069644070L;
-	// TODO mapped UWSUser
+
+	@OneToOne(mappedBy = "mailSettings")
+	private UWSUser user;
+	@Column(name = "mail_addr")
 	private String mailAddress;
-	// mapped sub group
-	// mapped ignore group
+	// TODO mapped sub group
+	// TODO mapped ignore group
 	private Boolean daily;
 	private Boolean weekly;
+	@Column(name = "day_of_week")
 	private Byte dayOfWeek;
+	@Column(name = "last_daily")
 	private Date lastDaily;
+	@Column(name = "last_weekly")
 	private Date lastWeekly;
 
 	public String getMailAddress() {
@@ -64,5 +72,10 @@ public class MailSettings extends BaseEntity {
 
 	public void setLastWeekly(Date lastWeekly) {
 		this.lastWeekly = lastWeekly;
+	}
+
+	// TODO equals hashCode toString
+	public String toString() {
+		return "MS: " + getId() + " user " + user.getName();
 	}
 }
