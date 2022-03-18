@@ -43,6 +43,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.csrf()
 				.disable()//TODO supposedly better for testing this way
 			.logout()
-				.logoutSuccessUrl("/login");
+				.logoutSuccessUrl("/index.html");
 	}
 }

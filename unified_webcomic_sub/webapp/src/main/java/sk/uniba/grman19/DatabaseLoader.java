@@ -30,10 +30,11 @@ public class DatabaseLoader implements CommandLineRunner {
 		repository.save(new Source("s1", "des1"));
 		repository.save(new Source("s2", "des2"));
 		repository.save(new Source("s3", "des3"));
-		repository.findAll().forEach(System.out::println);
+		//repository.findAll().forEach(System.out::println);
 		userRepository.save(new UWSUser("root", "usbw", true, false, false, false, false, false));
-		System.out.println("Dumping MS");
+		userRepository.save(new UWSUser("user", "user", false, false, false, false, false, false));
+		/*System.out.println("Dumping MS");
 		mSRepository.findAll().forEach(System.out::println);
-		System.out.println("Dumping MS done");
+		System.out.println("Dumping MS done");*/
 	}
 }
