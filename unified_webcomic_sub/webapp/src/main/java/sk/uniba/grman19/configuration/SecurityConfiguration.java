@@ -26,6 +26,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		//for testing
+		http.authorizeRequests()
+			.antMatchers("/h2-console/*").permitAll()
+			.and().headers().frameOptions().disable()
+			.and().csrf().disable();
+		//TODO registration page
 		http.authorizeRequests()
 			.antMatchers("/built/**", "/main.css")
 				.permitAll()
@@ -40,8 +46,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and()
 			.httpBasic()
 			.and()
-			.csrf()
-				.disable()//TODO supposedly better for testing this way
 			.logout()
 				.logoutSuccessUrl("/index.html");
 	}
