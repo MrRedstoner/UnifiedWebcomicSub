@@ -5,7 +5,7 @@ import java.util.Objects;
 import javax.persistence.Entity;
 
 @Entity
-public class Source extends BaseEntity{
+public class Source extends BaseEntity {
 	/** generated */
 	private static final long serialVersionUID = -456290309097991577L;
 

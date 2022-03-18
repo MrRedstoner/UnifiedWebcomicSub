@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
-public class BaseEntity implements Serializable {
+public abstract class BaseEntity implements Serializable {
 	/** generated */
 	private static final long serialVersionUID = 2676067726347252821L;
 	@Id
@@ -23,7 +23,7 @@ public class BaseEntity implements Serializable {
 		this.id = id;
 	}
 
-	//TODO force inclusion without this
+	// TODO force inclusion without this
 	public String getUseId() {
 		return Objects.toString(id);
 	}
