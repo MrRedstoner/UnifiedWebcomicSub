@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,8 @@ public class UWSUserService implements UserDetailsService {
 	private UWSUserDAO userDao;
 	@Autowired
 	private MailSettingsDAO mailSettingsDao;
+	@Autowired
+	PasswordEncoder passwordEncoder;
 
 	@Override
 	public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
@@ -44,8 +47,8 @@ public class UWSUserService implements UserDetailsService {
 
 	@Transactional(readOnly = false)
 	public UWSUser registerUser(UserRegistration user) {
-		//TODO audit log creation
-		UWSUser uuser = new UWSUser(user.getUsername(), user.getPassword(), false, false, false, false, false, false);
+		// TODO audit log creation
+		UWSUser uuser = new UWSUser(user.getUsername(), passwordEncoder.encode(user.getPassword()));
 		uuser = userDao.createUWSUser(uuser);
 		mailSettingsDao.createMailSettings(uuser.getId(), user.getEmail());
 		return uuser;

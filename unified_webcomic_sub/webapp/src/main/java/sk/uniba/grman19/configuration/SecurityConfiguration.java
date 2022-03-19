@@ -1,5 +1,8 @@
 package sk.uniba.grman19.configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,8 +12,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import sk.uniba.grman19.models.UWSUser;
 import sk.uniba.grman19.service.UWSUserService;
 
 @Configuration
@@ -23,7 +28,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(userDetailsService)
-			.passwordEncoder(UWSUser.PASSWORD_ENCODER);
+			.passwordEncoder(passwordEncoder());
 	}
 
 	@Bean(name = "authenticationManagerBean")
@@ -58,5 +63,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.and()
 			.logout()
 				.logoutSuccessUrl("/index");
+	}
+
+	@Bean
+	protected PasswordEncoder passwordEncoder() {
+		Map<String, PasswordEncoder> encoders = new HashMap<>();
+		encoders.put("bcrypt", new BCryptPasswordEncoder());
+		DelegatingPasswordEncoder passworEncoder = new DelegatingPasswordEncoder("bcrypt", encoders);
+		return passworEncoder;
 	}
 }

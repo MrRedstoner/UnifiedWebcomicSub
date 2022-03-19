@@ -6,18 +6,12 @@ import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity(name = "uws_user")
 public class UWSUser extends BaseEntity {
 	/** generated */
 	private static final long serialVersionUID = 3755946416573106039L;
-	// TODO beanify, ideally DelegatingPasswordEncoder
-	// NoOpPasswordEncoder.getInstance();
-	public static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
 	private String name;
 	@JsonIgnore
@@ -38,6 +32,10 @@ public class UWSUser extends BaseEntity {
 	private MailSettings mailSettings;
 
 	public UWSUser() {
+	}
+
+	public UWSUser(String name, String password) {
+		this(name, password, false, false, false, false, false, false);
 	}
 
 	public UWSUser(String name, String password, boolean owner, boolean admin, boolean createPost, boolean createSource, boolean editSource, boolean editGroup) {
@@ -64,7 +62,7 @@ public class UWSUser extends BaseEntity {
 	}
 
 	public void setPassword(String password) {
-		this.password = PASSWORD_ENCODER.encode(password);
+		this.password = password;
 	}
 
 	public Boolean getOwner() {
