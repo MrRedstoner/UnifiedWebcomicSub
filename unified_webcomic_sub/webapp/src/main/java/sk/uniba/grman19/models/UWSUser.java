@@ -15,6 +15,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class UWSUser extends BaseEntity {
 	/** generated */
 	private static final long serialVersionUID = 3755946416573106039L;
+	// TODO beanify, ideally DelegatingPasswordEncoder
+	// NoOpPasswordEncoder.getInstance();
 	public static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
 	private String name;

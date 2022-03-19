@@ -11,6 +11,7 @@ public class MailSettings extends BaseEntity {
 	/** generated */
 	private static final long serialVersionUID = -504521804069644070L;
 
+	private Long uid;
 	@OneToOne(mappedBy = "mailSettings")
 	private UWSUser user;
 	@Column(name = "mail_addr")
@@ -25,6 +26,27 @@ public class MailSettings extends BaseEntity {
 	private Date lastDaily;
 	@Column(name = "last_weekly")
 	private Date lastWeekly;
+
+	public MailSettings() {
+	}
+
+	public MailSettings(Long uid, String mailAddress, boolean daily, boolean weekly, byte dayOfWeek, Date lastDaily, Date lastWeekly) {
+		this.uid = uid;
+		this.mailAddress = mailAddress;
+		this.daily = daily;
+		this.weekly = weekly;
+		this.dayOfWeek = dayOfWeek;
+		this.lastDaily = lastDaily;
+		this.lastWeekly = lastWeekly;
+	}
+
+	public Long getUid() {
+		return uid;
+	}
+
+	public void setUid(Long uid) {
+		this.uid = uid;
+	}
 
 	public String getMailAddress() {
 		return mailAddress;

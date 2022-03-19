@@ -33,6 +33,7 @@ class EmployeeList extends React.Component{
 			<>
 				<a href="/login">Login</a>
 				<a href="/logout">Logout</a>
+				<a href="/registration">Register</a>
 				<a href="/private.html">Logged in only</a>
 				<table>
 					<tbody>

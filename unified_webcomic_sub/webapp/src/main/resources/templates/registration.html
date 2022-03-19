@@ -1,0 +1,34 @@
+<html xmlns:th="https://www.thymeleaf.org">
+<h1 th:text="#{label.form.title}">form</h1>
+<form action="/registration" th:object="${user}" method="POST" enctype="utf8">
+    <div>
+        <label th:text="#{label.user.username}">username</label>
+        <input th:field="*{username}"/>
+        <p th:each="error: ${#fields.errors('username')}" 
+          th:text="${error}">Validation error</p>
+    </div>
+    <div>
+        <label th:text="#{label.user.email}">email</label>
+        <input type="email" th:field="*{email}"/>
+        <p th:each="error : ${#fields.errors('email')}" 
+          th:text="${error}">Validation error</p>
+    </div>
+    <div>
+        <label th:text="#{label.user.password}">password</label>
+        <input type="password" th:field="*{password}"/>
+        <p th:each="error : ${#fields.errors('password')}" 
+          th:text="${error}">Validation error</p>
+    </div>
+    <div>
+        <label th:text="#{label.user.confirmPass}">confirm</label>
+        <input type="password" th:field="*{matchingPassword}"/>
+        <p th:each="error : ${#fields.errors('global')}" 
+          th:text="${error}">Validation error</p>
+    </div>
+    <p th:if="${message != null}" th:text="${message}">Server detected error</p>
+    <button type="submit" th:text="#{label.form.submit}">submit</button>
+</form>
+
+<a th:href="@{/login}" th:text="#{label.form.loginLink}">login</a>
+</body>
+</html>

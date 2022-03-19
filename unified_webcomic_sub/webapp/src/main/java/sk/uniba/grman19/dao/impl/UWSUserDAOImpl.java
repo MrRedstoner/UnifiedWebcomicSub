@@ -15,12 +15,20 @@ import org.springframework.transaction.annotation.Transactional;
 import sk.uniba.grman19.dao.UWSUserDAO;
 import sk.uniba.grman19.models.UWSUser;
 import sk.uniba.grman19.models.UWSUser_;
+import sk.uniba.grman19.repository.UWSUserRepository;
 
 @Component
 @Transactional(readOnly = true)
 public class UWSUserDAOImpl implements UWSUserDAO {
 	@Autowired
 	private EntityManager entityManager;
+	@Autowired
+	private UWSUserRepository userRepository;
+
+	@Override
+	public Optional<UWSUser> getUser(Long id) {
+		return userRepository.findById(id);
+	}
 
 	@Override
 	public Optional<UWSUser> getUser(String name) {
@@ -29,12 +37,21 @@ public class UWSUserDAOImpl implements UWSUserDAO {
 		Root<UWSUser> root = cq.from(UWSUser.class);
 		cq.select(root);
 		cq.where(cb.equal(root.get(UWSUser_.name), cb.literal(name)));
-		List<UWSUser>s= entityManager.createQuery(cq).getResultList();
+		List<UWSUser> s = entityManager.createQuery(cq).getResultList();
 		if (s.isEmpty()) {
 			return Optional.empty();
 		} else {
-			return Optional.of(s.get(0)); 
+			return Optional.of(s.get(0));
 		}
+	}
+
+	@Transactional(readOnly = false)
+	@Override
+	public UWSUser createUWSUser(UWSUser user) {
+		if (getUser(user.getName()).isPresent()) {
+			throw new IllegalArgumentException("Name already used");
+		}
+		return userRepository.save(user);
 	}
 
 }

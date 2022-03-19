@@ -6,7 +6,7 @@ import java.util.Optional;
 import sk.uniba.grman19.models.Source;
 
 public interface SourceDAO {
-	Optional<Source> getSource(int id);
+	Optional<Source> getSource(Long id);
 
 	List<Source> getAllSources();
 }

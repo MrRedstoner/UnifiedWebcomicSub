@@ -14,27 +14,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import sk.uniba.grman19.dao.SourceDAO;
 import sk.uniba.grman19.models.Source;
-import sk.uniba.grman19.models.Source_;
+import sk.uniba.grman19.repository.SourceRepository;
 
 @Component
 @Transactional(readOnly = true)
 public class SourceDAOImpl implements SourceDAO {
 	@Autowired
 	private EntityManager entityManager;
+	@Autowired
+	private SourceRepository sourceRepository;
 
 	@Override
-	public Optional<Source> getSource(int id) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<Source> cq = cb.createQuery(Source.class);
-		Root<Source> root = cq.from(Source.class);
-		cq.select(root);
-		cq.where(cb.equal(root.get(Source_.id), cb.literal(id)));
-		List<Source> s = entityManager.createQuery(cq).getResultList();
-		if (s.isEmpty()) {
-			return Optional.empty();
-		} else {
-			return Optional.of(s.get(0));
-		}
+	public Optional<Source> getSource(Long id) {
+		return sourceRepository.findById(id);
 	}
 
 	@Override
