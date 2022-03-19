@@ -4,3 +4,5 @@
 .settings/
 package-lock.json
 .recommenders/
+unified_webcomic_sub/webapp/src/main/resources/static/built/bundle.js
+unified_webcomic_sub/webapp/src/main/resources/static/built/bundle.js.map
