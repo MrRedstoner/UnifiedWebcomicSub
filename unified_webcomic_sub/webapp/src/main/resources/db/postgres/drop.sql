@@ -1,0 +1,16 @@
+DROP TABLE poll_vote;
+DROP TABLE seen_update;
+DROP TABLE seen_post;
+DROP TABLE post_sub;
+DROP TABLE source_sub;
+DROP TABLE poll_option;
+DROP TABLE post_comment;
+DROP TABLE post;
+DROP TABLE audit_log;
+DROP TABLE mail_setting;
+DROP TABLE uws_user;
+DROP TABLE group_child;
+DROP TABLE sub_group;
+DROP TABLE source_update;
+DROP TABLE source_attr;
+DROP TABLE source;
