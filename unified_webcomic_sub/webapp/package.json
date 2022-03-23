@@ -1,24 +1,16 @@
 {
-  "name": "spring-data-rest-and-reactjs",
+  "name": "unified_webcomic_sub",
   "version": "0.1.0",
-  "description": "Demo of ReactJS + Spring Data REST",
+  "description": "Unified Webcomic Subscriber",
   "repository": {
     "type": "git",
-    "url": "git@github.com:spring-guides/tut-react-and-spring-data-rest.git"
+    "url": "git@github.com:MrRedstoner/UnifiedWebcomicSub.git"
   },
-  "keywords": [
-    "rest",
-    "hateoas",
-    "spring",
-    "data",
-    "react"
-  ],
-  "author": "Greg L. Turnquist",
+  "author": "Patrik Grman",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/spring-guides/tut-react-and-spring-data-rest/issues"
+    "url": "https://github.com/MrRedstoner/UnifiedWebcomicSub/issues"
   },
-  "homepage": "https://github.com/spring-guides/tut-react-and-spring-data-rest",
   "dependencies": {
     "react": "^16.5.2",
     "react-dom": "^16.5.2",
@@ -27,11 +19,22 @@
   "scripts": {
     "watch": "webpack --watch -d --output ./target/classes/static/built/bundle.js"
   },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
   "devDependencies": {
     "@babel/core": "^7.1.0",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-react": "^7.0.0",
+    "@types/react": "^16.4.6",
+    "@types/react-dom": "^16.0.6",
+    "babel-core": "^6.26.0",
     "babel-loader": "^8.0.2",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-react-hmre": "^1.1.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "ts-loader": "^4.0.0",
+    "typescript": "^2.9.2",
     "webpack": "^4.19.1",
     "webpack-cli": "^3.1.0"
   }

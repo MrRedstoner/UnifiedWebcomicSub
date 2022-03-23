@@ -14,7 +14,6 @@ const LogoutLink = () => {
 	);
 }
 
-
 const RegisterLink = () => {
 	return (
 		<a href="/registration">Register</a>
