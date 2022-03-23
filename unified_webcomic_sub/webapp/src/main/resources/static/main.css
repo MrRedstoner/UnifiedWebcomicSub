@@ -1,21 +1,26 @@
-table {
-    border-collapse: collapse;
-}
-
-td, th {
-    border: 1px solid #999;
-    padding: 0.5rem;
-    text-align: left;
-}
-
 body {
 	margin: 40px auto;
-	max-width: 650px; /*maybe calc a max to allow wider*/
+	/*maybe calc a max to allow wider*/
+	max-width: 650px;
 	line-height: 1.6;
 	font-size: 18px;
 	color: #444;
 	padding: 0 10px
 }
-h1, h2, h3 {
+
+h1,
+h2,
+h3 {
 	line-height: 1.2
+}
+
+table {
+	border-collapse: collapse;
+}
+
+td,
+th {
+	border: 1px solid #999;
+	padding: 0.5rem;
+	text-align: left;
 }

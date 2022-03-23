@@ -9,26 +9,26 @@ class App extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = {employees: []};
+		this.state = { employees: [] };
 	}
 
 	componentDidMount() {
-		client({method: 'GET', path: '/api/sources'}).done(response => {
-			this.setState({employees: response.entity._embedded.sources});
+		client({ method: 'GET', path: '/api/sources' }).done(response => {
+			this.setState({ employees: response.entity._embedded.sources });
 		});
 	}
 
 	render() {
 		return (
-			<EmployeeList employees={this.state.employees}/>
+			<EmployeeList employees={this.state.employees} />
 		)
 	}
 }
 
-class EmployeeList extends React.Component{
+class EmployeeList extends React.Component {
 	render() {
 		const employees = this.props.employees.map(employee =>
-			<Employee key={employee._links.self.href} employee={employee}/>
+			<Employee key={employee._links.self.href} employee={employee} />
 		);
 		return (
 			<>
@@ -51,7 +51,7 @@ class EmployeeList extends React.Component{
 	}
 }
 
-class Employee extends React.Component{
+class Employee extends React.Component {
 	render() {
 		return (
 			<tr>
