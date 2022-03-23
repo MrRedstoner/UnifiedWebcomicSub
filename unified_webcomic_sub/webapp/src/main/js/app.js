@@ -3,6 +3,7 @@
 const React = require('react');
 const ReactDOM = require('react-dom');
 const client = require('./client');
+import { LoginLink, LogoutLink, RegisterLink } from './Links'
 
 class App extends React.Component {
 
@@ -31,9 +32,9 @@ class EmployeeList extends React.Component{
 		);
 		return (
 			<>
-				<a href="/login">Login</a>
-				<a href="/logout">Logout</a>
-				<a href="/registration">Register</a>
+				<LoginLink />
+				<LogoutLink />
+				<RegisterLink />
 				<a href="/private.html">Logged in only</a>
 				<table>
 					<tbody>
@@ -61,6 +62,7 @@ class Employee extends React.Component{
 		)
 	}
 }
+
 ReactDOM.render(
 	<App />,
 	document.getElementById('react')

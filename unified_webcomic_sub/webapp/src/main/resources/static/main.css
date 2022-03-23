@@ -8,7 +8,14 @@ td, th {
     text-align: left;
 }
 
-
-h1{
-	color:#00FF00;
+body {
+	margin: 40px auto;
+	max-width: 650px; /*maybe calc a max to allow wider*/
+	line-height: 1.6;
+	font-size: 18px;
+	color: #444;
+	padding: 0 10px
+}
+h1, h2, h3 {
+	line-height: 1.2
 }
