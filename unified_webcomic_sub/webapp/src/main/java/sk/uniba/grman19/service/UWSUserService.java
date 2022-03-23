@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import sk.uniba.grman19.dao.AuditLogDAO;
 import sk.uniba.grman19.dao.MailSettingsDAO;
 import sk.uniba.grman19.dao.UWSUserDAO;
 import sk.uniba.grman19.models.MyUserDetails;
@@ -27,6 +28,8 @@ public class UWSUserService implements UserDetailsService {
 	private MailSettingsDAO mailSettingsDao;
 	@Autowired
 	PasswordEncoder passwordEncoder;
+	@Autowired
+	private AuditLogDAO auditLogDao;
 
 	@Override
 	public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
@@ -47,10 +50,10 @@ public class UWSUserService implements UserDetailsService {
 
 	@Transactional(readOnly = false)
 	public UWSUser registerUser(UserRegistration user) {
-		// TODO audit log creation
 		UWSUser uuser = new UWSUser(user.getUsername(), passwordEncoder.encode(user.getPassword()));
 		uuser = userDao.createUWSUser(uuser);
-		mailSettingsDao.createMailSettings(uuser.getId(), user.getEmail());
+		mailSettingsDao.createMailSettings(uuser, user.getEmail());
+		auditLogDao.saveLog(uuser, "Created user");
 		return uuser;
 	}
 }

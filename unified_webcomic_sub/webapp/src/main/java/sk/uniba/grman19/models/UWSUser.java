@@ -1,9 +1,13 @@
 package sk.uniba.grman19.models;
 
-import javax.persistence.CascadeType;
+import java.util.List;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,9 +31,15 @@ public class UWSUser extends BaseEntity {
 	@Column(name = "edit_group")
 	private Boolean editGroup;
 
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne
 	@JoinColumn(name = "id", referencedColumnName = "uid")
 	private MailSettings mailSettings;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	private List<AuditLog> auditLog;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	private List<Post> posts;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	private Set<PollVote> votes;
 
 	public UWSUser() {
 	}
@@ -112,5 +122,36 @@ public class UWSUser extends BaseEntity {
 	public void setEditGroup(Boolean editGroup) {
 		this.editGroup = editGroup;
 	}
-	// TODO equals hashCode toString
+
+	public MailSettings getMailSettings() {
+		return mailSettings;
+	}
+
+	public void setMailSettings(MailSettings mailSettings) {
+		this.mailSettings = mailSettings;
+	}
+
+	public List<AuditLog> getAuditLog() {
+		return auditLog;
+	}
+
+	public void setAuditLog(List<AuditLog> auditLog) {
+		this.auditLog = auditLog;
+	}
+
+	public List<Post> getPosts() {
+		return posts;
+	}
+
+	public void setPosts(List<Post> posts) {
+		this.posts = posts;
+	}
+
+	public Set<PollVote> getVotes() {
+		return votes;
+	}
+
+	public void setVotes(Set<PollVote> votes) {
+		this.votes = votes;
+	}
 }

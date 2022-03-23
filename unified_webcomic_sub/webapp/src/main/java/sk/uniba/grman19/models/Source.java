@@ -1,8 +1,11 @@
 package sk.uniba.grman19.models;
 
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 
 @Entity
 public class Source extends BaseEntity {
@@ -11,6 +14,11 @@ public class Source extends BaseEntity {
 
 	private String name;
 	private String description;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "source")
+	private List<SourceAttribute> sourceAttribute;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "source")
+	private List<SourceUpdate> sourceUpdates;
 
 	public Source() {
 	}
@@ -36,15 +44,30 @@ public class Source extends BaseEntity {
 		this.description = description;
 	}
 
+	public List<SourceAttribute> getSourceAttribute() {
+		return sourceAttribute;
+	}
+
+	public void setSourceAttribute(List<SourceAttribute> sourceAttribute) {
+		this.sourceAttribute = sourceAttribute;
+	}
+
+	public List<SourceUpdate> getSourceUpdates() {
+		return sourceUpdates;
+	}
+
+	public void setSourceUpdates(List<SourceUpdate> sourceUpdates) {
+		this.sourceUpdates = sourceUpdates;
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
-		Source employee = (Source) o;
-		return Objects.equals(id, employee.id) && Objects.equals(name, employee.name)
-				&& Objects.equals(description, employee.description);
+		Source s = (Source) o;
+		return Objects.equals(id, s.id) && Objects.equals(name, s.name) && Objects.equals(description, s.description);
 	}
 
 	@Override
