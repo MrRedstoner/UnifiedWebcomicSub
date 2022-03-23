@@ -1,3 +1,4 @@
+'use strict';
 
 function fetchEffect(endpoint: string, setItem: (item: Object) => void, setError: (error: any) => void, setIsLoaded: (loaded: boolean) => void) {
 	return () => {
