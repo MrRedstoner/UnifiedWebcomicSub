@@ -4,6 +4,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 const client = require('./client');
 import { LoginLink, LogoutLink, RegisterLink } from './Links'
+import UserNameDisplay from './UserNameDisplay'
 
 class App extends React.Component {
 
@@ -36,6 +37,7 @@ class EmployeeList extends React.Component {
 				<LogoutLink />
 				<RegisterLink />
 				<a href="/private.html">Logged in only</a>
+				<UserNameDisplay />
 				<table>
 					<tbody>
 						<tr>
