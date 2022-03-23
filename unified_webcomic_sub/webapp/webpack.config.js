@@ -2,7 +2,7 @@
 //console.log(path.join(__dirname, '.'))
 module.exports = {
   entry: './src/main/js/app.js',
-  devtool: 'sourcemaps',
+  devtool: 'source-map',
   cache: true,
   mode: 'development',
   output: {
