@@ -48,9 +48,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.authorizeRequests()
 			.antMatchers("/registration")
 				.anonymous()
-			.antMatchers("/built/**", "/main.css")
+			.antMatchers("/built/**", "/main.css", "/favicon.ico")
 				.permitAll()
-			.antMatchers("/index", "/api/sources", "/rest/user/getlogged")
+			.antMatchers("/index", "/api/sources", "/rest/user/getlogged", "/rest/user/getmailset")
 				.permitAll()// TODO set up nicely
 			.anyRequest()
 				.authenticated()

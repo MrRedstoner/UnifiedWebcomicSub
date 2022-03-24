@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import sk.uniba.grman19.models.MailSettings;
 import sk.uniba.grman19.models.UWSUser;
 import sk.uniba.grman19.service.UWSUserService;
 import sk.uniba.grman19.util.Cloner;
@@ -17,6 +18,7 @@ import sk.uniba.grman19.util.Cloner;
 @RequestMapping("/rest/user")
 public class UserRestController {
 	private static Function<UWSUser, UWSUser> WITH_MAIL_SETTINGS = Cloner.clone("mailSettings");
+	private static Function<MailSettings, MailSettings> MAIL_SETTINGS = Cloner.clone();
 
 	@Autowired
 	private UWSUserService userDetailsService;
@@ -25,5 +27,12 @@ public class UserRestController {
 	public Optional<UWSUser> getLoggedInUser() {
 		Optional<UWSUser> ouser = userDetailsService.getLoggedInUser();
 		return ouser.map(WITH_MAIL_SETTINGS);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, path = "/getmailset", produces = MediaType.APPLICATION_JSON_VALUE)
+	public Optional<MailSettings> getLoggedInMailSettings() {
+		Optional<UWSUser> ouser = userDetailsService.getLoggedInUser();
+		return ouser.map(UWSUser::getMailSettings)
+			.map(MAIL_SETTINGS);
 	}
 }

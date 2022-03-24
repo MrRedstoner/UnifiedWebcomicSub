@@ -7,7 +7,6 @@ import {  GET_LOGGED_IN_USER } from './api/apiEndpoints'
 type UWSUser = {
 	name: string;
 };
-//TODO proper name display, mail setting saving
 
 const UserNameDisplay: React.FC = () => {
 	const [error, setError] = useState(null);

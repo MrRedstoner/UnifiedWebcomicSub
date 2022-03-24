@@ -5,12 +5,12 @@ const ReactDOM = require('react-dom');
 const client = require('./client').default;
 import { LoginLink, LogoutLink, RegisterLink } from './Links'
 import UserNameDisplay from './UserNameDisplay'
+import UserArea from './UserArea'
 
 class App extends React.Component {
-
+/*
 	constructor(props) {
 		super(props);
-		this.state = { employees: [] };
 	}
 
 	componentDidMount() {
@@ -18,11 +18,9 @@ class App extends React.Component {
 			this.setState({ employees: response.entity._embedded.sources });
 		});
 	}
-
+*/
 	render() {
-		return (
-			<EmployeeList employees={this.state.employees} />
-		)
+		return (<UserArea />);
 	}
 }
 
