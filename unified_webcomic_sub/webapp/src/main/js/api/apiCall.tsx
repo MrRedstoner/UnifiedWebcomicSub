@@ -1,6 +1,6 @@
 'use strict';
 
-function fetchEffect(endpoint: string, setItem: (item: Object) => void, setError: (error: any) => void, setIsLoaded: (loaded: boolean) => void) {
+function fetchGetEffect(endpoint: string, setItem: (item: Object) => void, setError: (error: any) => void, setIsLoaded: (loaded: boolean) => void) {
 	return () => {
 		fetch(endpoint)
 			.then(res => res.json())
@@ -17,4 +17,4 @@ function fetchEffect(endpoint: string, setItem: (item: Object) => void, setError
 	}
 }
 
-export default fetchEffect
+export default fetchGetEffect

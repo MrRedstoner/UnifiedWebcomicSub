@@ -6,7 +6,6 @@ import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
@@ -31,8 +30,7 @@ public class UWSUser extends BaseEntity {
 	@Column(name = "edit_group")
 	private Boolean editGroup;
 
-	@OneToOne
-	@JoinColumn(name = "id", referencedColumnName = "uid")
+	@OneToOne(mappedBy = "user")
 	private MailSettings mailSettings;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private List<AuditLog> auditLog;

@@ -2,7 +2,7 @@
 
 const React = require('react');
 const ReactDOM = require('react-dom');
-const client = require('./client');
+const client = require('./client').default;
 import { LoginLink, LogoutLink, RegisterLink } from './Links'
 import UserNameDisplay from './UserNameDisplay'
 
