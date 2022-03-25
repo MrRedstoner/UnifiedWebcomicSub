@@ -15,41 +15,13 @@ function fetchGetEffect(endpoint: string, setItem: (item: Object) => void, setEr
 				(result) => {
 					setIsLoaded(true);
 					setItem(result);
+					setError(null);
 				}
 			)
 			.catch(
 				(error) => {
 					setIsLoaded(true);
 					setError(error);
-				}
-			)
-	}
-}
-
-//TODO make an async function that just makes the call
-function fetchPostHandler(endpoint: string, setItem: (item: Object) => void, setError: (error: any) => void, setIsLoaded: (loaded: boolean) => void){
-	return (body:Object) => {
-		fetch(endpoint, {method:"POST", headers: new Headers({'Content-Type': 'application/json','Accept':'application/json'}),body: JSON.stringify(body)})
-			.then(response => {
-				if (!response.ok) {
-					return response.json().then(err => { throw new Error(err.message) })
-				}
-				else {
-					console.log("no issue")
-					return response.json();
-				}
-			})
-			.then(
-				(result) => {
-					console.log("setting result");
-					setItem(result);
-					setIsLoaded(true);
-				}
-			)
-			.catch(
-				(error) => {
-					setError(error);
-					setIsLoaded(true);
 				}
 			)
 	}
