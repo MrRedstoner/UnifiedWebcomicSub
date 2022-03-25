@@ -1,4 +1,4 @@
-package sk.uniba.grman19.models;
+package sk.uniba.grman19.models.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;

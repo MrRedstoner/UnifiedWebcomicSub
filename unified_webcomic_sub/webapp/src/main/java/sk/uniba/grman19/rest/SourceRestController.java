@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import sk.nociar.jpacloner.JpaCloner;
 import sk.uniba.grman19.dao.SourceDAO;
-import sk.uniba.grman19.models.Source;
+import sk.uniba.grman19.models.entity.Source;
 
 @RestController
 @RequestMapping("/rest/source")

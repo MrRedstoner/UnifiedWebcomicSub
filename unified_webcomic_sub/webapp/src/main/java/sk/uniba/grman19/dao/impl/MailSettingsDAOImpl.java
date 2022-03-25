@@ -8,9 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import sk.uniba.grman19.dao.MailSettingsDAO;
 import sk.uniba.grman19.dao.SubGroupDAO;
-import sk.uniba.grman19.models.MailSettings;
-import sk.uniba.grman19.models.SubGroup;
-import sk.uniba.grman19.models.UWSUser;
+import sk.uniba.grman19.models.entity.MailSettings;
+import sk.uniba.grman19.models.entity.SubGroup;
+import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.repository.MailSettingsRepository;
 
 @Component
@@ -29,6 +29,12 @@ public class MailSettingsDAOImpl implements MailSettingsDAO {
 		SubGroup ignore = subGroupDao.createUserGroup();
 		MailSettings ret = repository.save(new MailSettings(user, email, subscribe, ignore, false, false, (byte) 0, DATE_NEVER, DATE_NEVER));
 		return ret;
+	}
+
+	@Transactional(readOnly = false)
+	@Override
+	public void saveMailSettings(MailSettings settings) {
+		repository.save(settings);
 	}
 
 }

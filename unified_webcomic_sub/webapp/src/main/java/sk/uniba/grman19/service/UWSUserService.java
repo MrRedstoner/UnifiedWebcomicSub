@@ -17,8 +17,9 @@ import sk.uniba.grman19.dao.AuditLogDAO;
 import sk.uniba.grman19.dao.MailSettingsDAO;
 import sk.uniba.grman19.dao.UWSUserDAO;
 import sk.uniba.grman19.models.MyUserDetails;
-import sk.uniba.grman19.models.UWSUser;
-import sk.uniba.grman19.models.UserRegistration;
+import sk.uniba.grman19.models.entity.UWSUser;
+import sk.uniba.grman19.models.rest.UserRegistration;
+import sk.uniba.grman19.util.ForbiddenException;
 
 @Service
 public class UWSUserService implements UserDetailsService {
@@ -46,6 +47,14 @@ public class UWSUserService implements UserDetailsService {
 			return userDao.getUser(user.getId());
 		}
 		return Optional.empty();
+	}
+
+	/**
+	 * @throws ForbiddenException
+	 *             if the user is not logged in
+	 */
+	public UWSUser requireLoggedInUser() {
+		return getLoggedInUser().orElseThrow(ForbiddenException::new);
 	}
 
 	@Transactional(readOnly = false)

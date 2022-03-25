@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.ModelAndView;
 
-import sk.uniba.grman19.models.UserRegistration;
+import sk.uniba.grman19.models.rest.UserRegistration;
 import sk.uniba.grman19.service.UWSUserService;
 
 @Controller

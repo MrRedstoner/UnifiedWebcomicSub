@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import sk.uniba.grman19.dao.SourceDAO;
-import sk.uniba.grman19.models.Source;
+import sk.uniba.grman19.models.entity.Source;
 import sk.uniba.grman19.repository.SourceRepository;
 
 @Component

@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import sk.uniba.grman19.dao.AuditLogDAO;
-import sk.uniba.grman19.models.AuditLog;
-import sk.uniba.grman19.models.UWSUser;
+import sk.uniba.grman19.models.entity.AuditLog;
+import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.repository.AuditLogRepository;
 
 @Component

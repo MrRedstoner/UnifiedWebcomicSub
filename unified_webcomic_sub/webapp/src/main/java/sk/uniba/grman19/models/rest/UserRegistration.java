@@ -1,4 +1,4 @@
-package sk.uniba.grman19.models;
+package sk.uniba.grman19.models.rest;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;

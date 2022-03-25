@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import sk.uniba.grman19.models.Source;
-import sk.uniba.grman19.models.UWSUser;
-import sk.uniba.grman19.models.UserRegistration;
+import sk.uniba.grman19.models.entity.Source;
+import sk.uniba.grman19.models.entity.UWSUser;
+import sk.uniba.grman19.models.rest.UserRegistration;
 import sk.uniba.grman19.repository.MailSettingsRepository;
 import sk.uniba.grman19.repository.SourceRepository;
 import sk.uniba.grman19.repository.UWSUserRepository;

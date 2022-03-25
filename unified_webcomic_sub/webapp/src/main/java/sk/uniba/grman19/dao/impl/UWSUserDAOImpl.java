@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import sk.uniba.grman19.dao.UWSUserDAO;
-import sk.uniba.grman19.models.UWSUser;
-import sk.uniba.grman19.models.UWSUser_;
+import sk.uniba.grman19.models.entity.UWSUser_;
+import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.repository.UWSUserRepository;
 
 @Component
