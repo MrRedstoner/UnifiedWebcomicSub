@@ -19,4 +19,10 @@ type MailSettingsChange = {
 	dayOfWeek?: number;
 }
 
-export { UWSUser, MailSettings, MailSettingsChange }
+type Source = {
+	id: number;
+	name: string;
+	description: string;
+}
+
+export { UWSUser, MailSettings, MailSettingsChange, Source }

@@ -1,5 +1,7 @@
 package sk.uniba.grman19;
 
+import java.util.stream.IntStream;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -28,9 +30,7 @@ public class DatabaseLoader implements CommandLineRunner {
 	// some test data
 	@Override
 	public void run(String... strings) throws Exception {
-		sourceRepository.save(new Source("s1", "des1"));
-		sourceRepository.save(new Source("s2", "des2"));
-		sourceRepository.save(new Source("s3", "des3"));
+		IntStream.range(0, 20).forEach(this::createSource);
 		UserRegistration user;
 		UWSUser uuser;
 		user = makeUserRegistration("root", "usbw", "root@root");
@@ -39,6 +39,10 @@ public class DatabaseLoader implements CommandLineRunner {
 		userRepository.save(uuser);
 		user = makeUserRegistration("user", "user", "user@root");
 		uuser = userService.registerUser(user);
+	}
+
+	private void createSource(int number) {
+		sourceRepository.save(new Source("source" + number, "descr" + number));
 	}
 
 	private UserRegistration makeUserRegistration(String name, String pass, String email) {

@@ -17,6 +17,7 @@ import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.rest.MailSettingUpdate;
 import sk.uniba.grman19.service.MailSettingsService;
 import sk.uniba.grman19.service.UWSUserService;
+import sk.uniba.grman19.util.BadRequestException;
 import sk.uniba.grman19.util.Cloner;
 
 @RestController
@@ -38,7 +39,7 @@ public class MailSettingRestController {
 	@RequestMapping(method = RequestMethod.POST, path = "/setmailset", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public MailSettings setLoggedInMailSettings(@RequestBody @Valid MailSettingUpdate update, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
-			throw new RuntimeException(bindingResult.getAllErrors().get(0).getDefaultMessage());
+			throw new BadRequestException(bindingResult);
 		}
 
 		UWSUser user = userDetailsService.requireLoggedInUser();

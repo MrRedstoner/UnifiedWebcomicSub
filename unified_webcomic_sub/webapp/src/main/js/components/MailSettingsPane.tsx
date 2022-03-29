@@ -12,7 +12,7 @@ type Props = {
 	initMailSettings: MailSettings;
 };
 
-const DAYS_OF_WEEK=["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 const MailSettingsPane: React.FC<Props> = ({ initMailSettings }) => {
 	const [error, setError] = useState(null);
@@ -61,29 +61,29 @@ const MailSettingsPane: React.FC<Props> = ({ initMailSettings }) => {
 			<br />
 			<CheckBox label="Weekly emails" initialValue={mailSettings.weekly} setValue={onWeekly} />
 			<br />
-			<SimpleSelect label="Day for weekly emails" initialValue={mailSettings.dayOfWeek} setValue={onDayOfWeek} valueList={DAYS_OF_WEEK}/>
+			<SimpleSelect label="Day for weekly emails" initialValue={mailSettings.dayOfWeek} setValue={onDayOfWeek} valueList={DAYS_OF_WEEK} />
 			<br />
 		</>);
 
 	if (error) {
 		return (
-			<>
+			<div>
 				{form}
 				<div>Error: {error}</div>
 				<button onClick={onClick}>Update</button>
-			</>);
+			</div>);
 	} else if (!isLoaded) {
 		return (
-			<>
+			<div>
 				{form}
 				<button disabled={true}>Loading...</button>
-			</>);
+			</div>);
 	} else {
 		return (
-			<>
+			<div>
 				{form}
 				<button onClick={onClick}>Update</button>
-			</>);
+			</div>);
 	}
 };
 
