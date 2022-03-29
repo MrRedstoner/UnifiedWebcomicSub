@@ -8,6 +8,7 @@ import { UWSUser } from './api/entities'
 import MailSettingsPane from './components/MailSettingsPane'
 import SourcesPane from './components/SourcesPane'
 import GroupPane from './components/GroupPane'
+import { getPermissionClosure } from './api/entityFunctions';
 
 const UserArea: React.FC = () => {
 	const [error, setError] = useState(null);
@@ -20,23 +21,26 @@ const UserArea: React.FC = () => {
 		return <div>Error: {error.message}</div>;
 	} else if (!isLoaded) {
 		return <div>Loading...</div>;
-	} else if (user == null) {
-		return (
-			<>
-				<LoginLink />
-				<RegisterLink />
-				<SourcesPane />
-				<GroupPane />
-			</>)
 	} else {
-		return (
-			<>
-				<LogoutLink />
-				<h1>Hello {user.name}</h1>
-				<MailSettingsPane initMailSettings={user.mailSettings} />
-				<SourcesPane />
-				<GroupPane />
-			</>)
+		const userPerms = getPermissionClosure(user);
+		if (user == null) {
+			return (
+				<>
+					<LoginLink />
+					<RegisterLink />
+					<SourcesPane />
+					<GroupPane user={userPerms} />
+				</>)
+		} else {
+			return (
+				<>
+					<LogoutLink />
+					<h1>Hello {user.name}</h1>
+					<MailSettingsPane initMailSettings={user.mailSettings} />
+					<SourcesPane />
+					<GroupPane user={userPerms} />
+				</>)
+		}
 	}
 }
 

@@ -1,7 +1,6 @@
 package sk.uniba.grman19.models.entity;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -21,10 +20,5 @@ public abstract class BaseEntity implements Serializable {
 
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	// TODO force inclusion without this
-	public String getUseId() {
-		return Objects.toString(id);
 	}
 }

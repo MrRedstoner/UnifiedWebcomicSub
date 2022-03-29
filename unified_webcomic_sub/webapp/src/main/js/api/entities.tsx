@@ -3,6 +3,12 @@
 type UWSUser = {
 	name: string;
 	mailSettings: MailSettings;
+	owner: boolean;
+	admin: boolean;
+	createPost: boolean;
+	createSource: boolean;
+	editSource: boolean;
+	editGroup: boolean;
 };
 
 type MailSettings = {
@@ -31,4 +37,14 @@ type Group = {
 	description: string;
 }
 
-export { UWSUser, MailSettings, MailSettingsChange, Source, Group }
+type UserPermissionClosure = {
+	registered: boolean;
+	owner: boolean;
+	admin: boolean;
+	createPost: boolean;
+	createSource: boolean;
+	editSource: boolean;
+	editGroup: boolean;
+};
+
+export { UWSUser, MailSettings, MailSettingsChange, Source, Group, UserPermissionClosure }

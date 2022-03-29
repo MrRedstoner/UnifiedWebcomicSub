@@ -8,9 +8,13 @@ import InputBox from './InputBox'
 
 const pageSize = 5;
 
-const SourceListRow: React.FC<Group> = (source) => {
+type RowProps = {
+	source: Group,
+	onRow: (id: number) => void
+}
+const SourceListRow: React.FC<RowProps> = ({ source, onRow }) => {
 	return (
-		<tr key={source.id}>
+		<tr onClick={() => { onRow(source.id) }}>
 			<td>{source.id}</td>
 			<td>{source.name}</td>
 			<td>{source.description}</td>
@@ -18,13 +22,13 @@ const SourceListRow: React.FC<Group> = (source) => {
 	);
 }
 
-const renderRows = (error: string, isLoaded: boolean, sourceList: Group[]) => {
+const renderRows = (error: string, isLoaded: boolean, sourceList: Group[], onRow: (id: number) => void) => {
 	if (error) {
 		return <><tr><td colSpan={3} className="allignCenter">Error: {error}</td></tr></>;
 	} else if (!isLoaded) {
 		return <><tr><td colSpan={3} className="allignCenter">Loading...</td></tr></>;
 	} else {
-		return sourceList.map(SourceListRow);
+		return sourceList.map((s) => <SourceListRow source={s} onRow={onRow} key={s.id} />);
 	}
 }
 
@@ -45,7 +49,11 @@ type SourceList = {
 	items: Group[];
 }
 
-const GroupList: React.FC = () => {
+type Props = {
+	onRow: (id: number) => void
+}
+
+const GroupList: React.FC<Props> = ({ onRow }) => {
 	const [error, setError] = useState<string>(null);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [sourceList, setSourceList] = useState<SourceList>({ total: 0, items: [] });
@@ -105,11 +113,11 @@ const GroupList: React.FC = () => {
 		setPage(newPage);
 	}
 	const lastPage = () => {
-		const newPage = { number: Math.ceil(sourceList.total / pageSize)-1 };
+		const newPage = { number: Math.ceil(sourceList.total / pageSize) - 1 };
 		setPage(newPage);
 	}
 	//TODO set first page and reload on enter in filter, reload on page buttons
-	const rows = renderRows(error, isLoaded, sourceList.items);
+	const rows = renderRows(error, isLoaded, sourceList.items, onRow);
 	const first = <button disabled={page.number === 0} onClick={() => setPage(firstPage)}>First</button>
 	const prev = <button disabled={page.number === 0} onClick={prevPage}>Previous</button>;
 	const next = <button disabled={((page.number + 1) * pageSize) >= sourceList.total} onClick={nextPage}>Next</button>;

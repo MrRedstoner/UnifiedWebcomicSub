@@ -2,6 +2,7 @@ package sk.uniba.grman19.dao.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -26,6 +27,11 @@ public class SubGroupDAOImpl implements SubGroupDAO {
 	private EntityManager entityManager;
 	@Autowired
 	private SubGroupRepository repository;
+
+	@Override
+	public Optional<SubGroup> getGroup(Long id) {
+		return repository.findById(id);
+	}
 
 	@Override
 	@Transactional(readOnly = false)
@@ -68,5 +74,10 @@ public class SubGroupDAOImpl implements SubGroupDAO {
 			.addStringFilter(FilterColumn.NAME, root.get(SubGroup_.name))
 			.addStringFilter(FilterColumn.DESCRIPTION, root.get(SubGroup_.description))
 			.addBooleanFilter(FilterColumn.USER_OWNED, root.get(SubGroup_.userOwned));
+	}
+
+	@Override
+	public SubGroup saveGroup(SubGroup group) {
+		return repository.save(group);
 	}
 }

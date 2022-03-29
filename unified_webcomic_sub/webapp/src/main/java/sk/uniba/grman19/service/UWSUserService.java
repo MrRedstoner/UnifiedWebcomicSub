@@ -20,6 +20,7 @@ import sk.uniba.grman19.models.MyUserDetails;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.rest.UserRegistration;
 import sk.uniba.grman19.util.ForbiddenException;
+import sk.uniba.grman19.util.PermissionCheck;
 
 @Service
 public class UWSUserService implements UserDetailsService {
@@ -55,6 +56,13 @@ public class UWSUserService implements UserDetailsService {
 	 */
 	public UWSUser requireLoggedInUser() {
 		return getLoggedInUser().orElseThrow(ForbiddenException::new);
+	}
+
+	/**
+	 * @throws ForbiddenException
+	 */
+	public UWSUser requireEditGroup() {
+		return getLoggedInUser().filter(PermissionCheck::canEditGroup).orElseThrow(ForbiddenException::new);
 	}
 
 	@Transactional(readOnly = false)
