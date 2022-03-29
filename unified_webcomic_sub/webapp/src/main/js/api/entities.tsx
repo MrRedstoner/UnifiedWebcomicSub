@@ -25,4 +25,10 @@ type Source = {
 	description: string;
 }
 
-export { UWSUser, MailSettings, MailSettingsChange, Source }
+type Group = {
+	id: number;
+	name: string;
+	description: string;
+}
+
+export { UWSUser, MailSettings, MailSettingsChange, Source, Group }

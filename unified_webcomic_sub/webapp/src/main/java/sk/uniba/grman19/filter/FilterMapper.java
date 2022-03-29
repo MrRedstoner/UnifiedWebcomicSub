@@ -18,6 +18,11 @@ public class FilterMapper {
 		this.cb = cb;
 	}
 
+	public FilterMapper addBooleanFilter(FilterColumn column, Expression<Boolean> atom) {
+		colFilters.put(column, s -> booleanFilter(s, atom));
+		return this;
+	}
+
 	public FilterMapper addNumberFilter(FilterColumn column, Expression<? extends Number> atom) {
 		colFilters.put(column, s -> numberFilter(s, atom));
 		return this;
@@ -52,5 +57,13 @@ public class FilterMapper {
 			throw new BadRequestException("Incorrect number filter");
 		}
 		return cb.equal(atom, cb.literal(number));
+	}
+
+	private Predicate booleanFilter(String filter, Expression<Boolean> atom) {
+		if (filter.equals("1")) {
+			return cb.isTrue(atom);
+		} else {
+			return cb.isFalse(atom);
+		}
 	}
 }

@@ -7,6 +7,7 @@ import { GET_LOGGED_IN_USER } from './api/apiEndpoints'
 import { UWSUser } from './api/entities'
 import MailSettingsPane from './components/MailSettingsPane'
 import SourcesPane from './components/SourcesPane'
+import GroupPane from './components/GroupPane'
 
 const UserArea: React.FC = () => {
 	const [error, setError] = useState(null);
@@ -25,6 +26,7 @@ const UserArea: React.FC = () => {
 				<LoginLink />
 				<RegisterLink />
 				<SourcesPane />
+				<GroupPane />
 			</>)
 	} else {
 		return (
@@ -33,6 +35,7 @@ const UserArea: React.FC = () => {
 				<h1>Hello {user.name}</h1>
 				<MailSettingsPane initMailSettings={user.mailSettings} />
 				<SourcesPane />
+				<GroupPane />
 			</>)
 	}
 }

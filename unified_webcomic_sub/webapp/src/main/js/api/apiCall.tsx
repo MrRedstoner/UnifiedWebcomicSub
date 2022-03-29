@@ -13,15 +13,15 @@ function fetchGetEffect(endpoint: string, setItem: (item: Object) => void, setEr
 			})
 			.then(
 				(result) => {
-					setIsLoaded(true);
 					setItem(result);
+					setIsLoaded(true);
 					setError(null);
 				}
 			)
 			.catch(
 				(error) => {
-					setIsLoaded(true);
 					setError(error);
+					setIsLoaded(true);
 				}
 			)
 	}

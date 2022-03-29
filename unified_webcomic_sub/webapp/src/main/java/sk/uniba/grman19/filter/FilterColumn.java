@@ -3,5 +3,6 @@ package sk.uniba.grman19.filter;
 public enum FilterColumn {
 	ID,
 	NAME,
-	DESCRIPTION
+	DESCRIPTION,
+	USER_OWNED
 }

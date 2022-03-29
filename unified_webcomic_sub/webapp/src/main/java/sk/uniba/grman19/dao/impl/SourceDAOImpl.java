@@ -58,8 +58,8 @@ public class SourceDAOImpl implements SourceDAO {
 
 	private FilterMapper makeFilterMapper(CriteriaBuilder cb, Root<Source> root) {
 		return new FilterMapper(cb)
-			.addNumberFilter(FilterColumn.ID, root.get(Source_.ID))
-			.addStringFilter(FilterColumn.NAME, root.get(Source_.NAME))
-			.addStringFilter(FilterColumn.DESCRIPTION, root.get(Source_.DESCRIPTION));
+			.addNumberFilter(FilterColumn.ID, root.get(Source_.id))
+			.addStringFilter(FilterColumn.NAME, root.get(Source_.name))
+			.addStringFilter(FilterColumn.DESCRIPTION, root.get(Source_.description));
 	}
 }
