@@ -21,6 +21,10 @@ public class SubGroup extends BaseEntity {
 	private List<SourceSubscription> sourceSubs;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
 	private List<PostSubscription> postSubs;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "child")
+	private List<GroupChild> parents;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
+	private List<GroupChild> children;
 
 	public SubGroup() {
 	}
@@ -69,5 +73,21 @@ public class SubGroup extends BaseEntity {
 
 	public void setPostSubs(List<PostSubscription> postSubs) {
 		this.postSubs = postSubs;
+	}
+
+	public List<GroupChild> getParents() {
+		return parents;
+	}
+
+	public void setParents(List<GroupChild> parents) {
+		this.parents = parents;
+	}
+
+	public List<GroupChild> getChildren() {
+		return children;
+	}
+
+	public void setChildren(List<GroupChild> children) {
+		this.children = children;
 	}
 }

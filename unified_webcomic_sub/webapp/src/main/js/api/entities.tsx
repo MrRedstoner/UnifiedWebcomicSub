@@ -35,6 +35,11 @@ type Group = {
 	id: number;
 	name: string;
 	description: string;
+	parents: GroupChild[];
+}
+
+type GroupChild = {
+	id: number;
 }
 
 type UserPermissionClosure = {

@@ -16,6 +16,7 @@ import sk.uniba.grman19.models.PaginatedList;
 import sk.uniba.grman19.models.entity.SubGroup;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.rest.SubGroupUpdate;
+import sk.uniba.grman19.util.BadRequestException;
 import sk.uniba.grman19.util.NotFoundException;
 
 @Service
@@ -34,6 +35,13 @@ public class SubGroupService {
 	public SubGroup updateSubGroup(UWSUser user, SubGroupUpdate update) {
 		SubGroup group = subGroupDao.getGroup(update.getId()).orElseThrow(NotFoundException::new);
 		Optional<SubGroupUpdate> osgu = Optional.of(update);
+		boolean nameUsed = osgu.map(SubGroupUpdate::getName)
+			.flatMap(subGroupDao::getGroup)
+			.isPresent();
+		if(nameUsed){
+			throw new BadRequestException("Group name must be unique");
+		}
+
 		List<String> changes = new LinkedList<>();
 
 		osgu.map(SubGroupUpdate::getName)

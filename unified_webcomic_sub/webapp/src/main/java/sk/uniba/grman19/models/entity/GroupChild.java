@@ -16,6 +16,14 @@ public class GroupChild extends BaseEntity {
 	@JoinColumn(name = "child_id")
 	private SubGroup child;
 
+	public GroupChild() {
+	}
+
+	public GroupChild(SubGroup parent, SubGroup child) {
+		this.parent = parent;
+		this.child = child;
+	}
+
 	public SubGroup getParent() {
 		return parent;
 	}

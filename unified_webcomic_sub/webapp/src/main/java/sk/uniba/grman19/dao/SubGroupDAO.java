@@ -10,6 +10,8 @@ import sk.uniba.grman19.models.entity.SubGroup;
 public interface SubGroupDAO {
 	Optional<SubGroup> getGroup(Long id);
 
+	Optional<SubGroup> getGroup(String name);
+
 	SubGroup createUserGroup();
 
 	SubGroup createPublicGroup(String name, String description);

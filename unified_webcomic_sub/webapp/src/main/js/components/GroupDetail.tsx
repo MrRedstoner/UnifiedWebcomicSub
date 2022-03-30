@@ -4,7 +4,15 @@ import React, { useState, useEffect } from 'react';
 import { UserPermissionClosure, Group } from '../api/entities';
 import InputBox from './InputBox';
 import { asyncFetchGet, asyncFetchPost } from '../api/apiCall';
-import { GROUP_SERVICE_READ_DETAIL, GROUP_SERVICE_SAVE_DETAIL } from '../api/apiEndpoints';
+import { GROUP_SERVICE_READ_DETAIL, GROUP_SERVICE_SAVE_DETAIL, GROUP_SERVICE_UPDATE_SUBSCRIBE } from '../api/apiEndpoints';
+
+const makeSubButton = (user: UserPermissionClosure, group: Group, updateSub: (value: string) => void) => {
+	if (group.parents.length === 0) {
+		return (<button disabled={!user.registered} onClick={async () => updateSub("true")}>Subscribe</button>);
+	} else {
+		return (<button disabled={!user.registered} onClick={async () => updateSub("false")}>Unsubscribe</button>);
+	}
+}
 
 type GroupChange = {
 	name?: string;
@@ -60,8 +68,17 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 	} else if (!isLoaded) {
 		return <div>Loading...</div>;
 	} else {
-		//TODO also pull in subscribed status, make subscribing work
-		const subButton = <button disabled={!user.registered}>Subscribe</button>;
+
+		const updateSub = async (value: string) => {
+			setIsLoaded(false);
+			setError(null);
+			const data = {
+				id: id.toString(),
+				value: value
+			};
+			await asyncFetchPost(GROUP_SERVICE_UPDATE_SUBSCRIBE, data, setGroup, setError, setIsLoaded);
+		}
+		const subButton = makeSubButton(user, group, updateSub);
 
 		//TODO allow showing with null id for create
 		if (user.editGroup) {
