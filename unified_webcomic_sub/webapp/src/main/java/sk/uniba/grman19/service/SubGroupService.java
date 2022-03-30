@@ -33,7 +33,7 @@ public class SubGroupService {
 	}
 
 	public SubGroup updateSubGroup(UWSUser user, SubGroupUpdate update) {
-		SubGroup group = subGroupDao.getGroup(update.getId()).orElseThrow(NotFoundException::new);
+		SubGroup group = subGroupDao.getNonUserGroup(update.getId()).orElseThrow(NotFoundException::new);
 		Optional<SubGroupUpdate> osgu = Optional.of(update);
 		boolean nameUsed = osgu.map(SubGroupUpdate::getName)
 			.flatMap(subGroupDao::getGroup)

@@ -37,7 +37,7 @@ import sk.uniba.grman19.util.NotFoundException;
 @RequestMapping("/rest/group")
 public class SubGroupRestController {
 	private static Function<PaginatedList<SubGroup>, PaginatedList<SubGroup>> GROUPS = Cloner.clonePaginated();
-	private static Function<SubGroup, SubGroup> GROUP = Cloner.clone("parents");
+	private static Function<SubGroup, SubGroup> GROUP = Cloner.clone("parents", "children.child");
 
 	@Autowired
 	private SubGroupService subGroupService;
@@ -69,10 +69,7 @@ public class SubGroupRestController {
 	@RequestMapping(method = RequestMethod.GET, path = "/readDetail", produces = MediaType.APPLICATION_JSON_VALUE)
 	public SubGroup readDetail(@RequestParam(name = "id") Long id) {
 		Optional<UWSUser> user = userDetailsService.getLoggedInUser();
-		return subGroupDao.getGroup(id)
-			.map(g -> setDirectSub(g, user))
-			.map(GROUP)
-			.orElseThrow(NotFoundException::new);
+		return readDetail(user, id);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, path = "/saveDetail", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -93,10 +90,30 @@ public class SubGroupRestController {
 			throw new BadRequestException(bindingResult);
 		}
 		UWSUser user = userDetailsService.requireLoggedInUser();
-		SubGroup group = subGroupDao.getGroup(update.getId()).orElseThrow(NotFoundException::new);
+		SubGroup group = subGroupDao.getNonUserGroup(update.getId()).orElseThrow(NotFoundException::new);
 		subscriptionService.updateSubscription(user, group, update.getValue());
 
-		return readDetail(update.getId());
+		return readDetail(Optional.of(user), update.getId());
+	}
+
+	@RequestMapping(method = RequestMethod.POST, path = "/updateChild", produces = MediaType.APPLICATION_JSON_VALUE)
+	public SubGroup updateGroupChild(@RequestBody @Valid GroupChildUpdate update, BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) {
+			throw new BadRequestException(bindingResult);
+		}
+		UWSUser user = userDetailsService.requireEditGroup();
+		SubGroup group = subGroupDao.getNonUserGroup(update.getId()).orElseThrow(NotFoundException::new);
+		SubGroup child = subGroupDao.getNonUserGroup(update.getChild()).orElseThrow(NotFoundException::new);
+		subscriptionService.updateGroupChild(user, group, child, update.getValue());
+
+		return readDetail(Optional.of(user), update.getId());
+	}
+
+	private SubGroup readDetail(Optional<UWSUser> user, Long id) {
+		return subGroupDao.getNonUserGroup(id)
+			.map(g -> setDirectSub(g, user))
+			.map(GROUP)
+			.orElseThrow(NotFoundException::new);
 	}
 
 	private SubGroup setDirectSub(SubGroup group, Optional<UWSUser> user) {
@@ -120,6 +137,40 @@ public class SubGroupRestController {
 
 		public void setId(Long id) {
 			this.id = id;
+		}
+
+		public Boolean getValue() {
+			return value;
+		}
+
+		public void setValue(Boolean value) {
+			this.value = value;
+		}
+	}
+
+	@SuppressWarnings("unused") // false positive on some setters
+	private static final class GroupChildUpdate {
+		@NotNull
+		private Long id;
+		@NotNull
+		private Long child;
+		@NotNull
+		private Boolean value;
+
+		public Long getId() {
+			return id;
+		}
+
+		public void setId(Long id) {
+			this.id = id;
+		}
+
+		public Long getChild() {
+			return child;
+		}
+
+		public void setChild(Long child) {
+			this.child = child;
 		}
 
 		public Boolean getValue() {

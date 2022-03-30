@@ -34,6 +34,21 @@ public class SubGroupDAOImpl implements SubGroupDAO {
 	}
 
 	@Override
+	public Optional<SubGroup> getNonUserGroup(Long id) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<SubGroup> cq = cb.createQuery(SubGroup.class);
+		Root<SubGroup> root = cq.from(SubGroup.class);
+		cq.select(root);
+		cq.where(cb.equal(root.get(SubGroup_.id), cb.literal(id)), cb.isFalse(root.get(SubGroup_.userOwned)));
+		List<SubGroup> s = entityManager.createQuery(cq).getResultList();
+		if (s.isEmpty()) {
+			return Optional.empty();
+		} else {
+			return Optional.of(s.get(0));
+		}
+	}
+
+	@Override
 	public Optional<SubGroup> getGroup(String name) {
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 		CriteriaQuery<SubGroup> cq = cb.createQuery(SubGroup.class);

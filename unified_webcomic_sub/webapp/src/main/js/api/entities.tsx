@@ -36,10 +36,11 @@ type Group = {
 	name: string;
 	description: string;
 	parents: GroupChild[];
+	children: GroupChild[];
 }
 
 type GroupChild = {
-	id: number;
+	child: Group;
 }
 
 type UserPermissionClosure = {
@@ -52,4 +53,12 @@ type UserPermissionClosure = {
 	editGroup: boolean;
 };
 
-export { UWSUser, MailSettings, MailSettingsChange, Source, Group, UserPermissionClosure }
+export {
+	UWSUser,
+	MailSettings,
+	MailSettingsChange,
+	Source,
+	Group,
+	GroupChild,
+	UserPermissionClosure
+}

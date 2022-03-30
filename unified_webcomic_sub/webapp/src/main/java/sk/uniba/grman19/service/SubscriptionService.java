@@ -30,4 +30,13 @@ public class SubscriptionService {
 			subscriptionDao.removeGroupRelation(user.getMailSettings().getSubscribe(), group);
 		}
 	}
+
+	public void updateGroupChild(UWSUser user, SubGroup group, SubGroup child, boolean value) {
+		auditLogDao.saveLog(user, "Updated group " + group.getId() + " child " + child.getId() + " to " + value);
+		if (value) {
+			subscriptionDao.addGroupRelation(group, child);
+		} else {
+			subscriptionDao.removeGroupRelation(group, child);
+		}
+	}
 }
