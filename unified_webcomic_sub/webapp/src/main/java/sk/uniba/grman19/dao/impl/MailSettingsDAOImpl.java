@@ -22,8 +22,8 @@ public class MailSettingsDAOImpl implements MailSettingsDAO {
 	@Autowired
 	private SubGroupDAO subGroupDao;
 
-	@Transactional(readOnly = false)
 	@Override
+	@Transactional(readOnly = false)
 	public MailSettings createMailSettings(UWSUser user, String email) {
 		SubGroup subscribe = subGroupDao.createUserGroup();
 		SubGroup ignore = subGroupDao.createUserGroup();
@@ -31,8 +31,8 @@ public class MailSettingsDAOImpl implements MailSettingsDAO {
 		return ret;
 	}
 
-	@Transactional(readOnly = false)
 	@Override
+	@Transactional(readOnly = false)
 	public void saveMailSettings(MailSettings settings) {
 		repository.save(settings);
 	}

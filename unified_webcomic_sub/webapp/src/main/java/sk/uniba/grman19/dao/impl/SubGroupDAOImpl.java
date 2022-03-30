@@ -1,12 +1,14 @@
 package sk.uniba.grman19.dao.impl;
 
+import static sk.uniba.grman19.util.query.TriFunction.asTri;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +21,28 @@ import sk.uniba.grman19.filter.FilterMapper;
 import sk.uniba.grman19.models.entity.SubGroup;
 import sk.uniba.grman19.models.entity.SubGroup_;
 import sk.uniba.grman19.repository.SubGroupRepository;
+import sk.uniba.grman19.util.query.FilterMapperQuery;
+import sk.uniba.grman19.util.query.SimpleQuery;
 
 @Component
 @Transactional(readOnly = true)
 public class SubGroupDAOImpl implements SubGroupDAO {
+
 	@Autowired
-	private EntityManager entityManager;
+	public SubGroupDAOImpl(EntityManager entityManager) {
+		this.entityManager = entityManager;
+		this.queryByName = new SimpleQuery<>(entityManager, SubGroup.class, this::nameEqual);
+		this.queryNonUserById = new SimpleQuery<>(entityManager, SubGroup.class, this::idEqual, asTri(this::nonUser));
+		this.queryByFilter = new FilterMapperQuery<>(entityManager, SubGroup.class, this::makeFilterMapper);
+	}
+
 	@Autowired
 	private SubGroupRepository repository;
+	@SuppressWarnings("unused")
+	private final EntityManager entityManager;
+	private final SimpleQuery<SubGroup, String> queryByName;
+	private final SimpleQuery<SubGroup, Long> queryNonUserById;
+	private final FilterMapperQuery<SubGroup> queryByFilter;
 
 	@Override
 	public Optional<SubGroup> getGroup(Long id) {
@@ -35,32 +51,12 @@ public class SubGroupDAOImpl implements SubGroupDAO {
 
 	@Override
 	public Optional<SubGroup> getNonUserGroup(Long id) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<SubGroup> cq = cb.createQuery(SubGroup.class);
-		Root<SubGroup> root = cq.from(SubGroup.class);
-		cq.select(root);
-		cq.where(cb.equal(root.get(SubGroup_.id), cb.literal(id)), cb.isFalse(root.get(SubGroup_.userOwned)));
-		List<SubGroup> s = entityManager.createQuery(cq).getResultList();
-		if (s.isEmpty()) {
-			return Optional.empty();
-		} else {
-			return Optional.of(s.get(0));
-		}
+		return queryNonUserById.querySingle(id);
 	}
 
 	@Override
 	public Optional<SubGroup> getGroup(String name) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<SubGroup> cq = cb.createQuery(SubGroup.class);
-		Root<SubGroup> root = cq.from(SubGroup.class);
-		cq.select(root);
-		cq.where(cb.equal(root.get(SubGroup_.name), cb.literal(name)));
-		List<SubGroup> s = entityManager.createQuery(cq).getResultList();
-		if (s.isEmpty()) {
-			return Optional.empty();
-		} else {
-			return Optional.of(s.get(0));
-		}
+		return queryByName.querySingle(name);
 	}
 
 	@Override
@@ -77,25 +73,18 @@ public class SubGroupDAOImpl implements SubGroupDAO {
 
 	@Override
 	public long getSubGroupCount(Map<FilterColumn, String> filters) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-		Root<SubGroup> root = cq.from(SubGroup.class);
-		cq.select(cb.count(root));
-		cq.where(makeFilterMapper(cb, root).processFilters(filters));
-		return entityManager.createQuery(cq).getSingleResult();
+		return queryByFilter.queryCount(filters);
 	}
 
 	@Override
 	public List<SubGroup> getSubGroups(int offset, int limit, Map<FilterColumn, String> filters) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<SubGroup> cq = cb.createQuery(SubGroup.class);
-		Root<SubGroup> root = cq.from(SubGroup.class);
-		cq.select(root);
-		cq.where(makeFilterMapper(cb, root).processFilters(filters));
-		return entityManager.createQuery(cq)
-			.setFirstResult(offset)
-			.setMaxResults(limit)
-			.getResultList();
+		return queryByFilter.queryList(offset, limit, filters);
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public SubGroup saveGroup(SubGroup group) {
+		return repository.save(group);
 	}
 
 	private FilterMapper makeFilterMapper(CriteriaBuilder cb, Root<SubGroup> root) {
@@ -106,8 +95,15 @@ public class SubGroupDAOImpl implements SubGroupDAO {
 			.addBooleanFilter(FilterColumn.USER_OWNED, root.get(SubGroup_.userOwned));
 	}
 
-	@Override
-	public SubGroup saveGroup(SubGroup group) {
-		return repository.save(group);
+	private Predicate nameEqual(CriteriaBuilder cb, Root<SubGroup> root, String name) {
+		return cb.equal(root.get(SubGroup_.name), cb.literal(name));
+	}
+
+	private Predicate idEqual(CriteriaBuilder cb, Root<SubGroup> root, Long id) {
+		return cb.equal(root.get(SubGroup_.id), cb.literal(id));
+	}
+
+	private Predicate nonUser(CriteriaBuilder cb, Root<SubGroup> root) {
+		return cb.isFalse(root.get(SubGroup_.userOwned));
 	}
 }

@@ -17,8 +17,8 @@ public class AuditLogDAOImpl implements AuditLogDAO {
 	@Autowired
 	private AuditLogRepository repository;
 
-	@Transactional(readOnly = false)
 	@Override
+	@Transactional(readOnly = false)
 	public void saveLog(UWSUser user, String message) {
 		repository.save(new AuditLog(user, new Date(), message));
 	}

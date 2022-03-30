@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +18,22 @@ import sk.uniba.grman19.filter.FilterMapper;
 import sk.uniba.grman19.models.entity.Source;
 import sk.uniba.grman19.models.entity.Source_;
 import sk.uniba.grman19.repository.SourceRepository;
+import sk.uniba.grman19.util.query.FilterMapperQuery;
 
 @Component
 @Transactional(readOnly = true)
 public class SourceDAOImpl implements SourceDAO {
 	@Autowired
-	private EntityManager entityManager;
+	public SourceDAOImpl(EntityManager entityManager) {
+		this.entityManager = entityManager;
+		this.queryByFilter = new FilterMapperQuery<>(entityManager, Source.class, this::makeFilterMapper);
+	}
+
 	@Autowired
 	private SourceRepository sourceRepository;
+	@SuppressWarnings("unused")
+	private final EntityManager entityManager;
+	private final FilterMapperQuery<Source> queryByFilter;
 
 	@Override
 	public Optional<Source> getSource(Long id) {
@@ -35,25 +42,12 @@ public class SourceDAOImpl implements SourceDAO {
 
 	@Override
 	public long getSourceCount(Map<FilterColumn, String> filters) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<Long> cq = cb.createQuery(Long.class);
-		Root<Source> root = cq.from(Source.class);
-		cq.select(cb.count(root));
-		cq.where(makeFilterMapper(cb, root).processFilters(filters));
-		return entityManager.createQuery(cq).getSingleResult();
+		return queryByFilter.queryCount(filters);
 	}
 
 	@Override
 	public List<Source> getSources(int offset, int limit, Map<FilterColumn, String> filters) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<Source> cq = cb.createQuery(Source.class);
-		Root<Source> root = cq.from(Source.class);
-		cq.select(root);
-		cq.where(makeFilterMapper(cb, root).processFilters(filters));
-		return entityManager.createQuery(cq)
-			.setFirstResult(offset)
-			.setMaxResults(limit)
-			.getResultList();
+		return queryByFilter.queryList(offset, limit, filters);
 	}
 
 	private FilterMapper makeFilterMapper(CriteriaBuilder cb, Root<Source> root) {

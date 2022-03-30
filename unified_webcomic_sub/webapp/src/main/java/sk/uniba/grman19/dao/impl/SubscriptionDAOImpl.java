@@ -1,14 +1,15 @@
 package sk.uniba.grman19.dao.impl;
 
-import java.util.List;
+import static sk.uniba.grman19.util.FunctionUtils.mapLast;
+
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.javatuples.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,17 +19,26 @@ import sk.uniba.grman19.models.entity.GroupChild;
 import sk.uniba.grman19.models.entity.GroupChild_;
 import sk.uniba.grman19.models.entity.SubGroup;
 import sk.uniba.grman19.repository.GroupChildRepository;
+import sk.uniba.grman19.util.query.SimpleQuery;
 
 @Component
 @Transactional(readOnly = true)
 public class SubscriptionDAOImpl implements SubscriptionDAO {
+
 	@Autowired
-	private EntityManager entityManager;
+	public SubscriptionDAOImpl(EntityManager entityManager) {
+		this.entityManager = entityManager;
+		this.queryByRelatedIds = new SimpleQuery<>(entityManager, GroupChild.class, mapLast(Pair::getValue0, this::parentIdEqual), mapLast(Pair::getValue1, this::childIdEqual));
+	}
+
 	@Autowired
 	GroupChildRepository groupChildRepo;
+	@SuppressWarnings("unused")
+	private final EntityManager entityManager;
+	private final SimpleQuery<GroupChild, Pair<Long, Long>> queryByRelatedIds;
 
-	@Transactional(readOnly = false)
 	@Override
+	@Transactional(readOnly = false)
 	public GroupChild addGroupRelation(SubGroup parent, SubGroup child) {
 		Optional<GroupChild> groupChild = getGroupRelation(parent, child);
 		if (groupChild.isPresent()) {
@@ -39,26 +49,20 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
 
 	@Override
 	public Optional<GroupChild> getGroupRelation(SubGroup parent, SubGroup child) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaQuery<GroupChild> cq = cb.createQuery(GroupChild.class);
-		Root<GroupChild> root = cq.from(GroupChild.class);
-		cq.select(root);
-		cq.where(cb.equal(root.get(GroupChild_.parent), cb.literal(parent.getId())), cb.equal(root.get(GroupChild_.child), cb.literal(child.getId())));
-		List<GroupChild> s = entityManager.createQuery(cq).getResultList();
-		if (s.isEmpty()) {
-			return Optional.empty();
-		} else {
-			return Optional.of(s.get(0));
-		}
+		return queryByRelatedIds.querySingle(Pair.with(parent.getId(), child.getId()));
 	}
 
-	@Transactional(readOnly = false)
 	@Override
+	@Transactional(readOnly = false)
 	public void removeGroupRelation(SubGroup parent, SubGroup child) {
-		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-		CriteriaDelete<GroupChild> cq = cb.createCriteriaDelete(GroupChild.class);
-		Root<GroupChild> root = cq.from(GroupChild.class);
-		cq.where(cb.equal(root.get(GroupChild_.parent), cb.literal(parent.getId())), cb.equal(root.get(GroupChild_.child), cb.literal(child.getId())));
-		entityManager.createQuery(cq).executeUpdate();
+		queryByRelatedIds.executeDelete(Pair.with(parent.getId(), child.getId()));
+	}
+
+	private Predicate parentIdEqual(CriteriaBuilder cb, Root<GroupChild> root, Long parentId) {
+		return cb.equal(root.get(GroupChild_.parent), cb.literal(parentId));
+	}
+
+	private Predicate childIdEqual(CriteriaBuilder cb, Root<GroupChild> root, Long childId) {
+		return cb.equal(root.get(GroupChild_.child), cb.literal(childId));
 	}
 }
