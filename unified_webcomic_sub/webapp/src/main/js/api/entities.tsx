@@ -35,9 +35,9 @@ type Group = {
 	id: number;
 	name: string;
 	description: string;
-	parents: GroupChild[];
-	children: GroupChild[];
-	sources: SourceSubscription[];
+	parents?: GroupChild[];
+	children?: GroupChild[];
+	sources?: SourceSubscription[];
 }
 
 type GroupChild = {

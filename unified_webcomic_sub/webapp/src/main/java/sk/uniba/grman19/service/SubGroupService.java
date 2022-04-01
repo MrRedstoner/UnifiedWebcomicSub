@@ -8,6 +8,7 @@ import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import sk.uniba.grman19.dao.AuditLogDAO;
 import sk.uniba.grman19.dao.SubGroupDAO;
@@ -32,6 +33,7 @@ public class SubGroupService {
 		return new PaginatedList<>(count, items);
 	}
 
+	@Transactional(readOnly = false)
 	public SubGroup updateSubGroup(UWSUser user, SubGroupUpdate update) {
 		SubGroup group = subGroupDao.getNonUserGroup(update.getId()).orElseThrow(NotFoundException::new);
 		Optional<SubGroupUpdate> osgu = Optional.of(update);
@@ -53,6 +55,16 @@ public class SubGroupService {
 
 		auditLogDao.saveLog(user, "Updated group " + update.getId() + " " + changes.toString());
 		return subGroupDao.saveGroup(group);
+	}
+
+	@Transactional(readOnly = false)
+	public SubGroup createSubGroup(UWSUser user, String name, String description) {
+		if (subGroupDao	.getGroup(name).isPresent()) {
+			throw new BadRequestException("Group name must be unique");
+		}
+		SubGroup group = subGroupDao.createPublicGroup(name, description);
+		auditLogDao.saveLog(user, "Created group " + group.getId());
+		return group;
 	}
 
 	private <O> Function<O, O> addChange(String fieldName, List<String> list) {

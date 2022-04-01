@@ -23,7 +23,7 @@ type ChildrenProps = {
 const GroupChildrenView: React.FC<ChildrenProps> = ({ canEdit, children, updateChildren }) => {
 	const childIds = children.map((gc) => gc.child.id.toString());
 	if (!canEdit) {
-		return (<p>Children {childIds.join(", ")}</p>);
+		return (<p>Children: {childIds.join(", ")}</p>);
 	} else {
 		const [childId, setChildId] = useState<string>("")
 		const contains = childIds.includes(childId);
@@ -44,12 +44,12 @@ type SourcesProps = {
 const GroupSourcesView: React.FC<SourcesProps> = ({ canEdit, sources, updateSources }) => {
 	const childIds = sources.map((gc) => gc.source.id.toString());
 	if (!canEdit) {
-		return (<p>Sources {childIds.join(", ")}</p>);
+		return (<p>Sources: {childIds.join(", ")}</p>);
 	} else {
 		const [childId, setChildId] = useState<string>("")
 		const contains = childIds.includes(childId);
 		return (<>
-			<p>Children: {childIds.join(", ")}</p>
+			<p>Sources: {childIds.join(", ")}</p>
 			<InputBox label="Id" initialValue={childId} setValue={setChildId} />
 			<button disabled={childId === ""} onClick={async () => { updateSources(childId, (!contains).toString()) }}>{contains ? "Remove" : "Add"}</button>
 		</>);
@@ -105,7 +105,7 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 	if (error) {
 		return (<>
 			<p>Error: {error}</p>
-			<button onClick={() => { setChanges({}); setError(null) }}>Clear</button>
+			<button onClick={() => { setChanges({}); if (group === null) { loadData() } else { setError(null) } }}>Clear</button>
 		</>);
 	} else if (!isLoaded) {
 		return <div>Loading...</div>;
@@ -148,7 +148,7 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 		if (user.editGroup) {
 			return (
 				<>
-					<p>Group {id}</p>
+					<h3>Group {id}</h3>
 					<InputBox label="Name" initialValue={group.name} setValue={onName} />
 					<br />
 					<InputBox label="Description" initialValue={group.description} setValue={onDescription} />
@@ -162,7 +162,7 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 		} else {
 			return (
 				<>
-					<p>Group {id}</p>
+					<h3>Group {id}</h3>
 					<p>Name: {group.name}</p>
 					<p>Description: {group.description}</p>
 					{subButton}

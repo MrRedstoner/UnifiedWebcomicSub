@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,13 @@ public class SubGroupRestController {
 	public SubGroup readDetail(@RequestParam(name = "id") Long id) {
 		Optional<UWSUser> user = userDetailsService.getLoggedInUser();
 		return readDetail(user, id);
+	}
+
+	@RequestMapping(method = RequestMethod.POST, path = "/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public Long createSubGroup(@RequestBody @Valid NewGroup group, BindingResult bindingResult) {
+		UWSUser user = userDetailsService.requireEditGroup();
+		SubGroup updated = subGroupService.createSubGroup(user, group.getName(), group.getDescription());
+		return updated.getId();
 	}
 
 	@RequestMapping(method = RequestMethod.POST, path = "/saveDetail", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -202,6 +210,32 @@ public class SubGroupRestController {
 
 		public void setValue(Boolean value) {
 			this.value = value;
+		}
+	}
+
+	@SuppressWarnings("unused") // false positive on some setters
+	private static final class NewGroup {
+		@NotNull
+		@NotEmpty
+		private String name;
+		@NotNull
+		@NotEmpty
+		private String description;
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getDescription() {
+			return description;
+		}
+
+		public void setDescription(String description) {
+			this.description = description;
 		}
 	}
 }
