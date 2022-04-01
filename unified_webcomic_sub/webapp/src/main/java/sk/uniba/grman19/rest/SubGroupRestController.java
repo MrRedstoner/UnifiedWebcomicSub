@@ -19,10 +19,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
+import sk.uniba.grman19.dao.SourceDAO;
 import sk.uniba.grman19.dao.SubGroupDAO;
 import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.models.PaginatedList;
 import sk.uniba.grman19.models.entity.GroupChild;
+import sk.uniba.grman19.models.entity.Source;
 import sk.uniba.grman19.models.entity.SubGroup;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.rest.SubGroupUpdate;
@@ -37,7 +41,7 @@ import sk.uniba.grman19.util.NotFoundException;
 @RequestMapping("/rest/group")
 public class SubGroupRestController {
 	private static Function<PaginatedList<SubGroup>, PaginatedList<SubGroup>> GROUPS = Cloner.clonePaginated();
-	private static Function<SubGroup, SubGroup> GROUP = Cloner.clone("parents", "children.child");
+	private static Function<SubGroup, SubGroup> GROUP = Cloner.clone("parents", "children.child", "sourceSubs.source");
 
 	@Autowired
 	private SubGroupService subGroupService;
@@ -47,6 +51,8 @@ public class SubGroupRestController {
 	private SubscriptionService subscriptionService;
 	@Autowired
 	private SubGroupDAO subGroupDao;
+	@Autowired
+	private SourceDAO SourceDao;
 
 	@RequestMapping(method = RequestMethod.GET, path = "/read", produces = MediaType.APPLICATION_JSON_VALUE)
 	public PaginatedList<SubGroup> read(@RequestParam(name = "id") Optional<String> filterId, @RequestParam(name = "name") Optional<String> filterName,
@@ -101,10 +107,26 @@ public class SubGroupRestController {
 		if (bindingResult.hasErrors()) {
 			throw new BadRequestException(bindingResult);
 		}
+		if (update.getId().equals(update.getChild())) {
+			throw new BadRequestException("Group can not be its own child");
+		}
 		UWSUser user = userDetailsService.requireEditGroup();
 		SubGroup group = subGroupDao.getNonUserGroup(update.getId()).orElseThrow(NotFoundException::new);
 		SubGroup child = subGroupDao.getNonUserGroup(update.getChild()).orElseThrow(NotFoundException::new);
 		subscriptionService.updateGroupChild(user, group, child, update.getValue());
+
+		return readDetail(Optional.of(user), update.getId());
+	}
+
+	@RequestMapping(method = RequestMethod.POST, path = "/updateSource", produces = MediaType.APPLICATION_JSON_VALUE)
+	public SubGroup updateGroupSource(@RequestBody @Valid GroupChildUpdate update, BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) {
+			throw new BadRequestException(bindingResult);
+		}
+		UWSUser user = userDetailsService.requireEditGroup();
+		SubGroup group = subGroupDao.getNonUserGroup(update.getId()).orElseThrow(NotFoundException::new);
+		Source source = SourceDao.getSource(update.getChild()).orElseThrow(NotFoundException::new);
+		subscriptionService.updateGroupSubscription(user, group, source, update.getValue());
 
 		return readDetail(Optional.of(user), update.getId());
 	}
@@ -153,6 +175,7 @@ public class SubGroupRestController {
 		@NotNull
 		private Long id;
 		@NotNull
+		@JsonAlias("source")
 		private Long child;
 		@NotNull
 		private Boolean value;

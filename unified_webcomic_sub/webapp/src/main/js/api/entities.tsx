@@ -37,10 +37,15 @@ type Group = {
 	description: string;
 	parents: GroupChild[];
 	children: GroupChild[];
+	sources: SourceSubscription[];
 }
 
 type GroupChild = {
 	child: Group;
+}
+
+type SourceSubscription = {
+	source: Source;
 }
 
 type UserPermissionClosure = {
@@ -60,5 +65,6 @@ export {
 	Source,
 	Group,
 	GroupChild,
+	SourceSubscription,
 	UserPermissionClosure
 }

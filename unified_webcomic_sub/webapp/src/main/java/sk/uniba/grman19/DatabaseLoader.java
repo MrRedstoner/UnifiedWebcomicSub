@@ -39,8 +39,9 @@ public class DatabaseLoader implements CommandLineRunner {
 	// some test data
 	@Override
 	public void run(String... strings) throws Exception {
-		IntStream.range(0, 20)
-			.forEach(this::createSource);
+		List<Source> sources = IntStream.range(0, 20)
+			.mapToObj(this::createSource)
+			.collect(Collectors.toList());
 		List<SubGroup> groups = IntStream.range(0, 10)
 			.mapToObj(this::createGroup)
 			.collect(Collectors.toList());
@@ -59,6 +60,9 @@ public class DatabaseLoader implements CommandLineRunner {
 		subscribe(uuser, groups.get(0));
 		user = makeUserRegistration("user", "user", "user@root");
 		uuser = userService.registerUser(user);
+		subscriptionDao.addSourceSubscription(groups.get(0), sources.get(0));
+		subscriptionDao.addSourceSubscription(groups.get(0), sources.get(2));
+		subscriptionDao.addSourceSubscription(groups.get(0), sources.get(4));
 	}
 
 	private void subscribe(UWSUser uuser, SubGroup group) {
@@ -71,8 +75,8 @@ public class DatabaseLoader implements CommandLineRunner {
 		subscriptionDao.addGroupRelation(ms.getSubscribe(), group);
 	}
 
-	private void createSource(int number) {
-		sourceRepository.save(new Source("source" + number, "descr" + number));
+	private Source createSource(int number) {
+		return sourceRepository.save(new Source("source" + number, "descr" + number));
 	}
 
 	private SubGroup createGroup(int number) {

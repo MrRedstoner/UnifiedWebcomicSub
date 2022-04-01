@@ -10,10 +10,13 @@ public class BadRequestException extends RuntimeException {
 	private static final long serialVersionUID = 2457264703394433081L;
 
 	public BadRequestException(BindingResult bindingResult) {
-		super(bindingResult.getAllErrors().iterator().next().getDefaultMessage());
+		this(bindingResult.getAllErrors()
+			.iterator()
+			.next()
+			.getDefaultMessage());
 	}
 
 	public BadRequestException(String message) {
-		super(message);
+		super(message, null, true, false);
 	}
 }

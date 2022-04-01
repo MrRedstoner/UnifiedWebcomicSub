@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Entity(name = "sub_group")
 public class SubGroup extends BaseEntity {
 	/** generated */
@@ -17,6 +19,7 @@ public class SubGroup extends BaseEntity {
 	@Column(name = "user_owned")
 	private Boolean userOwned;
 
+	@JsonProperty("sources")
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
 	private List<SourceSubscription> sourceSubs;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "group")

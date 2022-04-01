@@ -18,6 +18,14 @@ public class SourceSubscription extends BaseEntity {
 	@JoinColumn(name = "source_id")
 	private Source source;
 
+	public SourceSubscription() {
+	}
+
+	public SourceSubscription(SubGroup group, Source source) {
+		this.group = group;
+		this.source = source;
+	}
+
 	public SubGroup getGroup() {
 		return group;
 	}

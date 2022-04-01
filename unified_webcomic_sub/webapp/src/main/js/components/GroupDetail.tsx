@@ -1,10 +1,10 @@
 'use strict';
 
 import React, { useState, useEffect } from 'react';
-import { UserPermissionClosure, Group, GroupChild } from '../api/entities';
+import { UserPermissionClosure, Group, GroupChild, SourceSubscription } from '../api/entities';
 import InputBox from './InputBox';
 import { asyncFetchGet, asyncFetchPost } from '../api/apiCall';
-import { GROUP_SERVICE_READ_DETAIL, GROUP_SERVICE_SAVE_DETAIL, GROUP_SERVICE_UPDATE_SUBSCRIBE, GROUP_SERVICE_UPDATE_CHILDREN } from '../api/apiEndpoints';
+import { GROUP_SERVICE_READ_DETAIL, GROUP_SERVICE_SAVE_DETAIL, GROUP_SERVICE_UPDATE_SUBSCRIBE, GROUP_SERVICE_UPDATE_CHILDREN, GROUP_SERVICE_UPDATE_SOURCES } from '../api/apiEndpoints';
 
 const makeSubButton = (user: UserPermissionClosure, group: Group, updateSub: (value: string) => void) => {
 	if (group.parents.length === 0) {
@@ -31,6 +31,27 @@ const GroupChildrenView: React.FC<ChildrenProps> = ({ canEdit, children, updateC
 			<p>Children: {childIds.join(", ")}</p>
 			<InputBox label="Id" initialValue={childId} setValue={setChildId} />
 			<button disabled={childId === ""} onClick={async () => { updateChildren(childId, (!contains).toString()) }}>{contains ? "Remove" : "Add"}</button>
+		</>);
+	}
+}
+
+type SourcesProps = {
+	canEdit: boolean
+	sources: SourceSubscription[];
+	updateSources?: (source_id: string, value: string) => void;
+}
+
+const GroupSourcesView: React.FC<SourcesProps> = ({ canEdit, sources, updateSources }) => {
+	const childIds = sources.map((gc) => gc.source.id.toString());
+	if (!canEdit) {
+		return (<p>Sources {childIds.join(", ")}</p>);
+	} else {
+		const [childId, setChildId] = useState<string>("")
+		const contains = childIds.includes(childId);
+		return (<>
+			<p>Children: {childIds.join(", ")}</p>
+			<InputBox label="Id" initialValue={childId} setValue={setChildId} />
+			<button disabled={childId === ""} onClick={async () => { updateSources(childId, (!contains).toString()) }}>{contains ? "Remove" : "Add"}</button>
 		</>);
 	}
 }
@@ -101,6 +122,17 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 			await asyncFetchPost(GROUP_SERVICE_UPDATE_CHILDREN, data, setGroup, setError, setIsLoaded);
 		}
 
+		const updateSources = async (source_id: string, value: string) => {
+			setIsLoaded(false);
+			setError(null);
+			const data = {
+				id: id.toString(),
+				source: source_id,
+				value: value
+			};
+			await asyncFetchPost(GROUP_SERVICE_UPDATE_SOURCES, data, setGroup, setError, setIsLoaded);
+		}
+
 		const updateSub = async (value: string) => {
 			setIsLoaded(false);
 			setError(null);
@@ -124,6 +156,7 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 					<button onClick={onSave}>Save</button>
 					{subButton}
 					<GroupChildrenView canEdit={true} children={group.children} updateChildren={updateChildren} />
+					<GroupSourcesView canEdit={true} sources={group.sources} updateSources={updateSources} />
 				</>
 			);
 		} else {
@@ -134,6 +167,7 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 					<p>Description: {group.description}</p>
 					{subButton}
 					<GroupChildrenView canEdit={false} children={group.children} />
+					<GroupSourcesView canEdit={false} sources={group.sources} />
 				</>
 			);
 		}
