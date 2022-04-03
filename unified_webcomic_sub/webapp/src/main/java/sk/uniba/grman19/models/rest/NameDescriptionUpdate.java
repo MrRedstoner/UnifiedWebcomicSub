@@ -3,7 +3,7 @@ package sk.uniba.grman19.models.rest;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
-public class SubGroupUpdate {
+public class NameDescriptionUpdate {
 	@NotNull
 	private Long id;
 	@Pattern(regexp = "^(?!\\s*$).+", message = "Name must not be empty")

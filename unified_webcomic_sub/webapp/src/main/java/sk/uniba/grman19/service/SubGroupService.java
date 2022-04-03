@@ -16,7 +16,7 @@ import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.models.PaginatedList;
 import sk.uniba.grman19.models.entity.SubGroup;
 import sk.uniba.grman19.models.entity.UWSUser;
-import sk.uniba.grman19.models.rest.SubGroupUpdate;
+import sk.uniba.grman19.models.rest.NameDescriptionUpdate;
 import sk.uniba.grman19.util.BadRequestException;
 import sk.uniba.grman19.util.NotFoundException;
 
@@ -34,10 +34,10 @@ public class SubGroupService {
 	}
 
 	@Transactional(readOnly = false)
-	public SubGroup updateSubGroup(UWSUser user, SubGroupUpdate update) {
+	public SubGroup updateSubGroup(UWSUser user, NameDescriptionUpdate update) {
 		SubGroup group = subGroupDao.getNonUserGroup(update.getId()).orElseThrow(NotFoundException::new);
-		Optional<SubGroupUpdate> osgu = Optional.of(update);
-		boolean nameUsed = osgu.map(SubGroupUpdate::getName)
+		Optional<NameDescriptionUpdate> osgu = Optional.of(update);
+		boolean nameUsed = osgu.map(NameDescriptionUpdate::getName)
 			.flatMap(subGroupDao::getGroup)
 			.isPresent();
 		if(nameUsed){
@@ -46,10 +46,10 @@ public class SubGroupService {
 
 		List<String> changes = new LinkedList<>();
 
-		osgu.map(SubGroupUpdate::getName)
+		osgu.map(NameDescriptionUpdate::getName)
 			.map(addChange("name", changes))
 			.ifPresent(group::setName);
-		osgu.map(SubGroupUpdate::getDescription)
+		osgu.map(NameDescriptionUpdate::getDescription)
 			.map(addChange("description", changes))
 			.ifPresent(group::setDescription);
 
@@ -59,7 +59,7 @@ public class SubGroupService {
 
 	@Transactional(readOnly = false)
 	public SubGroup createSubGroup(UWSUser user, String name, String description) {
-		if (subGroupDao	.getGroup(name).isPresent()) {
+		if (subGroupDao.getGroup(name).isPresent()) {
 			throw new BadRequestException("Group name must be unique");
 		}
 		SubGroup group = subGroupDao.createPublicGroup(name, description);

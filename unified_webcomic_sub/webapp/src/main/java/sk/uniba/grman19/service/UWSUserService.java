@@ -65,6 +65,20 @@ public class UWSUserService implements UserDetailsService {
 		return getLoggedInUser().filter(PermissionCheck::canEditGroup).orElseThrow(ForbiddenException::new);
 	}
 
+	/**
+	 * @throws ForbiddenException
+	 */
+	public UWSUser requireCreateSource() {
+		return getLoggedInUser().filter(PermissionCheck::canCreateSource).orElseThrow(ForbiddenException::new);
+	}
+
+	/**
+	 * @throws ForbiddenException
+	 */
+	public UWSUser requireEditSource() {
+		return getLoggedInUser().filter(PermissionCheck::canEditSource).orElseThrow(ForbiddenException::new);
+	}
+
 	@Transactional(readOnly = false)
 	public UWSUser registerUser(UserRegistration user) {
 		UWSUser uuser = new UWSUser(user.getUsername(), passwordEncoder.encode(user.getPassword()));

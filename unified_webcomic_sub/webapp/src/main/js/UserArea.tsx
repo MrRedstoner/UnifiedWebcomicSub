@@ -28,7 +28,7 @@ const UserArea: React.FC = () => {
 				<>
 					<LoginLink />
 					<RegisterLink />
-					<SourcesPane />
+					<SourcesPane user={userPerms} />
 					<GroupPane user={userPerms} />
 				</>)
 		} else {
@@ -37,7 +37,7 @@ const UserArea: React.FC = () => {
 					<LogoutLink />
 					<h1>Hello {user.name}</h1>
 					<MailSettingsPane initMailSettings={user.mailSettings} />
-					<SourcesPane />
+					<SourcesPane user={userPerms} />
 					<GroupPane user={userPerms} />
 				</>)
 		}

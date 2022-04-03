@@ -30,7 +30,7 @@ import sk.uniba.grman19.models.entity.GroupChild;
 import sk.uniba.grman19.models.entity.Source;
 import sk.uniba.grman19.models.entity.SubGroup;
 import sk.uniba.grman19.models.entity.UWSUser;
-import sk.uniba.grman19.models.rest.SubGroupUpdate;
+import sk.uniba.grman19.models.rest.NameDescriptionUpdate;
 import sk.uniba.grman19.service.SubGroupService;
 import sk.uniba.grman19.service.SubscriptionService;
 import sk.uniba.grman19.service.UWSUserService;
@@ -53,7 +53,7 @@ public class SubGroupRestController {
 	@Autowired
 	private SubGroupDAO subGroupDao;
 	@Autowired
-	private SourceDAO SourceDao;
+	private SourceDAO sourceDao;
 
 	@RequestMapping(method = RequestMethod.GET, path = "/read", produces = MediaType.APPLICATION_JSON_VALUE)
 	public PaginatedList<SubGroup> read(@RequestParam(name = "id") Optional<String> filterId, @RequestParam(name = "name") Optional<String> filterName,
@@ -81,13 +81,16 @@ public class SubGroupRestController {
 
 	@RequestMapping(method = RequestMethod.POST, path = "/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public Long createSubGroup(@RequestBody @Valid NewGroup group, BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) {
+			throw new BadRequestException(bindingResult);
+		}
 		UWSUser user = userDetailsService.requireEditGroup();
 		SubGroup updated = subGroupService.createSubGroup(user, group.getName(), group.getDescription());
 		return updated.getId();
 	}
 
 	@RequestMapping(method = RequestMethod.POST, path = "/saveDetail", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public SubGroup saveSubGroup(@RequestBody @Valid SubGroupUpdate update, BindingResult bindingResult) {
+	public SubGroup saveSubGroup(@RequestBody @Valid NameDescriptionUpdate update, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			throw new BadRequestException(bindingResult);
 		}
@@ -133,7 +136,7 @@ public class SubGroupRestController {
 		}
 		UWSUser user = userDetailsService.requireEditGroup();
 		SubGroup group = subGroupDao.getNonUserGroup(update.getId()).orElseThrow(NotFoundException::new);
-		Source source = SourceDao.getSource(update.getChild()).orElseThrow(NotFoundException::new);
+		Source source = sourceDao.getSource(update.getChild()).orElseThrow(NotFoundException::new);
 		subscriptionService.updateGroupSubscription(user, group, source, update.getValue());
 
 		return readDetail(Optional.of(user), update.getId());

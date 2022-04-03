@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 @Entity
 public class Source extends BaseEntity {
 	/** generated */
@@ -19,6 +21,9 @@ public class Source extends BaseEntity {
 	private List<SourceAttribute> sourceAttribute;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "source")
 	private List<SourceUpdate> sourceUpdates;
+	@JsonProperty("subscriptions")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "source")
+	private List<SourceSubscription> sourceSubs;
 
 	public Source() {
 	}
@@ -58,6 +63,14 @@ public class Source extends BaseEntity {
 
 	public void setSourceUpdates(List<SourceUpdate> sourceUpdates) {
 		this.sourceUpdates = sourceUpdates;
+	}
+
+	public List<SourceSubscription> getSourceSubs() {
+		return sourceSubs;
+	}
+
+	public void setSourceSubs(List<SourceSubscription> sourceSubs) {
+		this.sourceSubs = sourceSubs;
 	}
 
 	@Override

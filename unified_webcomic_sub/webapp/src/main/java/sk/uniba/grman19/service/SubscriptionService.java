@@ -10,6 +10,7 @@ import sk.uniba.grman19.dao.AuditLogDAO;
 import sk.uniba.grman19.dao.SubscriptionDAO;
 import sk.uniba.grman19.models.entity.GroupChild;
 import sk.uniba.grman19.models.entity.Source;
+import sk.uniba.grman19.models.entity.SourceSubscription;
 import sk.uniba.grman19.models.entity.SubGroup;
 import sk.uniba.grman19.models.entity.UWSUser;
 
@@ -26,7 +27,7 @@ public class SubscriptionService {
 
 	@Transactional(readOnly = false)
 	public void updateSubscription(UWSUser user, SubGroup group, boolean subscribed) {
-		auditLogDao.saveLog(user, "Updated subscription to " + group.getId() + " to " + subscribed);
+		auditLogDao.saveLog(user, "Updated subscription to group " + group.getId() + " to " + subscribed);
 		if (subscribed) {
 			subscriptionDao.addGroupRelation(user.getMailSettings().getSubscribe(), group);
 		} else {
@@ -52,5 +53,19 @@ public class SubscriptionService {
 		} else {
 			subscriptionDao.removeSourceSubscription(group, source);
 		}
+	}
+
+	@Transactional(readOnly = false)
+	public void updateSubscription(UWSUser user, Source source, boolean subscribed) {
+		auditLogDao.saveLog(user, "Updated subscription to source " + source.getId() + " to " + subscribed);
+		if (subscribed) {
+			subscriptionDao.addSourceSubscription(user.getMailSettings().getSubscribe(), source);
+		} else {
+			subscriptionDao.removeSourceSubscription(user.getMailSettings().getSubscribe(), source);
+		}
+	}
+
+	public Optional<SourceSubscription> getDirectSubscription(UWSUser user, Source source) {
+		return subscriptionDao.getSourceSubscription(user.getMailSettings().getSubscribe(), source);
 	}
 }

@@ -29,6 +29,7 @@ type Source = {
 	id: number;
 	name: string;
 	description: string;
+	subscriptions?: SourceSubscription[];
 }
 
 type Group = {
@@ -45,6 +46,7 @@ type GroupChild = {
 }
 
 type SourceSubscription = {
+	group: Group;
 	source: Source;
 }
 
