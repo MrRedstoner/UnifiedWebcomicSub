@@ -7,8 +7,10 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,6 +23,8 @@ import sk.uniba.grman19.dao.SourceDAO;
 import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.filter.FilterMapper;
 import sk.uniba.grman19.models.entity.Source;
+import sk.uniba.grman19.models.entity.SourceAttribute;
+import sk.uniba.grman19.models.entity.SourceAttribute_;
 import sk.uniba.grman19.models.entity.Source_;
 import sk.uniba.grman19.util.query.FilterMapperQuery;
 import sk.uniba.grman19.util.query.SimpleQuery;
@@ -68,6 +72,26 @@ public class SourceDAOImpl implements SourceDAO {
 	@Override
 	public Source saveSource(Source source) {
 		return entityManager.merge(source);
+	}
+
+	@Override
+	public List<Source> getSourcesByAttribute(String key, String value) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Source> cq = cb.createQuery(Source.class).distinct(true);
+		Root<Source> root = cq.from(Source.class);
+
+		// fetch attributes
+		root.fetch(Source_.sourceAttribute);
+		// subquery for a matchin atribute
+		Subquery<SourceAttribute> attribute = cq.subquery(SourceAttribute.class);
+		Root<SourceAttribute> attributeRoot = attribute.from(SourceAttribute.class);
+		attribute.select(attributeRoot);
+		attribute.where(cb.equal(root.get(Source_.id), attributeRoot.get(SourceAttribute_.source)), cb.equal(attributeRoot.get(SourceAttribute_.name), cb.literal(key)),
+				cb.equal(attributeRoot.get(SourceAttribute_.value), cb.literal(value)));
+
+		cq.select(root);
+		cq.where(cb.exists(attribute));
+		return entityManager.createQuery(cq).getResultList();
 	}
 
 	private static FilterMapper makeFilterMapper(CriteriaBuilder cb, Root<Source> root) {

@@ -1,6 +1,18 @@
 package sk.uniba.grman19;
 
+import static sk.uniba.grman19.processing.Constants.SIMPLE_POLL;
+import static sk.uniba.grman19.processing.Constants.SIMPLE_POLL_ATTRIBUTE;
+import static sk.uniba.grman19.processing.Constants.SIMPLE_POLL_CHECK;
+import static sk.uniba.grman19.processing.Constants.SIMPLE_POLL_TAG;
+import static sk.uniba.grman19.processing.Constants.SIMPLE_POLL_URL;
+import static sk.uniba.grman19.processing.Constants.SOURCE_TYPE;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -8,6 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import sk.uniba.grman19.dao.SourceAttributeDAO;
+import sk.uniba.grman19.dao.SourceDAO;
+import sk.uniba.grman19.dao.SourceUpdateDAO;
 import sk.uniba.grman19.dao.SubGroupDAO;
 import sk.uniba.grman19.dao.SubscriptionDAO;
 import sk.uniba.grman19.models.entity.MailSettings;
@@ -16,7 +31,6 @@ import sk.uniba.grman19.models.entity.SubGroup;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.rest.UserRegistration;
 import sk.uniba.grman19.repository.MailSettingsRepository;
-import sk.uniba.grman19.repository.SourceRepository;
 import sk.uniba.grman19.repository.UWSUserRepository;
 import sk.uniba.grman19.service.UWSUserService;
 
@@ -24,7 +38,7 @@ import sk.uniba.grman19.service.UWSUserService;
 public class DatabaseLoader implements CommandLineRunner {
 
 	@Autowired
-	private SourceRepository sourceRepository;
+	private SourceDAO sourceDao;
 	@Autowired
 	private UWSUserRepository userRepository;
 	@Autowired
@@ -35,6 +49,10 @@ public class DatabaseLoader implements CommandLineRunner {
 	private SubGroupDAO subGroupDao;
 	@Autowired
 	private SubscriptionDAO subscriptionDao;
+	@Autowired
+	private SourceAttributeDAO sourceAttributeDao;
+	@Autowired
+	private SourceUpdateDAO sourceUpdateDao;
 
 	// some test data
 	@Override
@@ -63,6 +81,24 @@ public class DatabaseLoader implements CommandLineRunner {
 		subscriptionDao.addSourceSubscription(groups.get(0), sources.get(0));
 		subscriptionDao.addSourceSubscription(groups.get(0), sources.get(2));
 		subscriptionDao.addSourceSubscription(groups.get(0), sources.get(4));
+
+		Map<String, String> attrs = new HashMap<String, String>();
+		attrs.put(SOURCE_TYPE, SIMPLE_POLL);
+		attrs.put(SIMPLE_POLL_URL, "https://davinci.fmph.uniba.sk/~grman19/uws/test.html");
+		attrs.put(SIMPLE_POLL_TAG, "a");
+		attrs.put(SIMPLE_POLL_CHECK, "^permalink.*$");
+		attrs.put(SIMPLE_POLL_ATTRIBUTE, "href");
+		addSourceAttrs(sources.get(0), attrs);
+		addSourceAttrs(sources.get(1), attrs);
+		addSourceAttrs(sources.get(2), Collections.singletonMap("type", "fancy_poll"));
+		sourceUpdateDao.saveSourceUpdate(sources.get(0), "link0", new Date());
+		sourceUpdateDao.saveSourceUpdate(sources.get(2), "somelink", new Date());
+	}
+
+	private void addSourceAttrs(Source source, Map<String, String> attrs) {
+		for (Entry<String, String> attr : attrs.entrySet()) {
+			sourceAttributeDao.addAttribute(source, attr.getKey(), attr.getValue());
+		}
 	}
 
 	private void subscribe(UWSUser uuser, SubGroup group) {
@@ -76,7 +112,7 @@ public class DatabaseLoader implements CommandLineRunner {
 	}
 
 	private Source createSource(int number) {
-		return sourceRepository.save(new Source("source" + number, "descr" + number));
+		return sourceDao.createSource("source" + number, "descr" + number);
 	}
 
 	private SubGroup createGroup(int number) {

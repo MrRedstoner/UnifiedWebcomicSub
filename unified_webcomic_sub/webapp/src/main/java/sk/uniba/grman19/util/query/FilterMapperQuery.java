@@ -11,8 +11,10 @@ import javax.persistence.criteria.Root;
 
 import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.filter.FilterMapper;
+import sk.uniba.grman19.models.entity.BaseEntity;
+import sk.uniba.grman19.models.entity.BaseEntity_;
 
-public class FilterMapperQuery<E> {
+public class FilterMapperQuery<E extends BaseEntity> {
 	private final EntityManager entityManager;
 	private final Class<E> clazz;
 	private final BiFunction<CriteriaBuilder, Root<E>, FilterMapper> with;
@@ -38,6 +40,7 @@ public class FilterMapperQuery<E> {
 		Root<E> root = cq.from(clazz);
 		cq.select(root);
 		cq.where(with.apply(cb, root).processFilters(filters));
+		cq.orderBy(cb.asc(root.get(BaseEntity_.id)));
 		return entityManager.createQuery(cq)
 			.setFirstResult(offset)
 			.setMaxResults(limit)

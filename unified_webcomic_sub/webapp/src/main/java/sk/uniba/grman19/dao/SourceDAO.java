@@ -19,4 +19,6 @@ public interface SourceDAO {
 	Source createSource(String name, String description);
 
 	Source saveSource(Source source);
+
+	List<Source> getSourcesByAttribute(String key, String value);
 }

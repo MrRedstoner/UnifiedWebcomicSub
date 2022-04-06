@@ -20,6 +20,15 @@ public class SourceUpdate extends BaseEntity {
 	private Date updateTime;
 	private String value;
 
+	public SourceUpdate() {
+	}
+
+	public SourceUpdate(Source source, String value, Date updateTime) {
+		this.source = source;
+		this.value = value;
+		this.updateTime = updateTime;
+	}
+
 	public Source getSource() {
 		return source;
 	}
