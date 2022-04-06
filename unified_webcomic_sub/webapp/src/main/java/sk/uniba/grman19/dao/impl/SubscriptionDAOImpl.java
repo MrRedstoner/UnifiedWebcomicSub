@@ -5,12 +5,16 @@ import static sk.uniba.grman19.util.FunctionUtils.mapLast;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.javatuples.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,29 +25,20 @@ import sk.uniba.grman19.models.entity.Source;
 import sk.uniba.grman19.models.entity.SourceSubscription;
 import sk.uniba.grman19.models.entity.SourceSubscription_;
 import sk.uniba.grman19.models.entity.SubGroup;
-import sk.uniba.grman19.repository.GroupChildRepository;
-import sk.uniba.grman19.repository.SourceSubscriptionRepository;
 import sk.uniba.grman19.util.query.SimpleQuery;
 
 @Component
 @Transactional(readOnly = true)
 public class SubscriptionDAOImpl implements SubscriptionDAO {
 
+	@PersistenceContext
+	private EntityManager entityManager;
 	@Autowired
-	public SubscriptionDAOImpl(EntityManager entityManager) {
-		this.entityManager = entityManager;
-		this.queryByRelatedIds = new SimpleQuery<>(entityManager, GroupChild.class, mapLast(Pair::getValue0, this::parentIdEqual), mapLast(Pair::getValue1, this::childIdEqual));
-		this.querySourceByIds = new SimpleQuery<>(entityManager, SourceSubscription.class, mapLast(Pair::getValue0, this::groupIdEqual), mapLast(Pair::getValue1, this::sourceIdEqual));
-	}
-
+	@Qualifier("subscriptionQueryByRelatedIds")
+	private SimpleQuery<GroupChild, Pair<Long, Long>> queryByRelatedIds;
 	@Autowired
-	GroupChildRepository groupChildRepo;
-	@Autowired
-	SourceSubscriptionRepository sourceSubRepo;
-	@SuppressWarnings("unused")
-	private final EntityManager entityManager;
-	private final SimpleQuery<GroupChild, Pair<Long, Long>> queryByRelatedIds;
-	private final SimpleQuery<SourceSubscription, Pair<Long, Long>> querySourceByIds;
+	@Qualifier("subscriptionQuerySourceByIds")
+	private SimpleQuery<SourceSubscription, Pair<Long, Long>> querySourceByIds;
 
 	@Override
 	@Transactional(readOnly = false)
@@ -52,7 +47,9 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
 		if (groupChild.isPresent()) {
 			return groupChild.get();
 		}
-		return groupChildRepo.save(new GroupChild(parent, child));
+		GroupChild newChild = new GroupChild(parent, child);
+		entityManager.persist(newChild);
+		return newChild;
 	}
 
 	@Override
@@ -73,7 +70,9 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
 		if (sourceSubscription.isPresent()) {
 			return sourceSubscription.get();
 		}
-		return sourceSubRepo.save(new SourceSubscription(group, source));
+		SourceSubscription newSub = new SourceSubscription(group, source);
+		entityManager.persist(newSub);
+		return newSub;
 	}
 
 	@Override
@@ -87,19 +86,35 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
 		querySourceByIds.executeDelete(Pair.with(group.getId(), source.getId()));
 	}
 
-	private Predicate parentIdEqual(CriteriaBuilder cb, Root<GroupChild> root, Long parentId) {
+	private static Predicate parentIdEqual(CriteriaBuilder cb, Root<GroupChild> root, Long parentId) {
 		return cb.equal(root.get(GroupChild_.parent), cb.literal(parentId));
 	}
 
-	private Predicate childIdEqual(CriteriaBuilder cb, Root<GroupChild> root, Long childId) {
+	private static Predicate childIdEqual(CriteriaBuilder cb, Root<GroupChild> root, Long childId) {
 		return cb.equal(root.get(GroupChild_.child), cb.literal(childId));
 	}
 
-	private Predicate groupIdEqual(CriteriaBuilder cb, Root<SourceSubscription> root, Long parentId) {
+	private static Predicate groupIdEqual(CriteriaBuilder cb, Root<SourceSubscription> root, Long parentId) {
 		return cb.equal(root.get(SourceSubscription_.group), cb.literal(parentId));
 	}
 
-	private Predicate sourceIdEqual(CriteriaBuilder cb, Root<SourceSubscription> root, Long childId) {
+	private static Predicate sourceIdEqual(CriteriaBuilder cb, Root<SourceSubscription> root, Long childId) {
 		return cb.equal(root.get(SourceSubscription_.source), cb.literal(childId));
+	}
+
+	@Configuration
+	static class Config {
+		@Bean(name = "subscriptionQueryByRelatedIds")
+		@PersistenceContext
+		SimpleQuery<GroupChild, Pair<Long, Long>> queryByRelatedIds(EntityManager entityManager) {
+			return new SimpleQuery<>(entityManager, GroupChild.class, mapLast(Pair::getValue0, SubscriptionDAOImpl::parentIdEqual), mapLast(Pair::getValue1, SubscriptionDAOImpl::childIdEqual));
+		}
+
+		@Bean(name = "subscriptionQuerySourceByIds")
+		@PersistenceContext
+		SimpleQuery<SourceSubscription, Pair<Long, Long>> querySourceByIds(EntityManager entityManager) {
+			return new SimpleQuery<>(entityManager, SourceSubscription.class, mapLast(Pair::getValue0, SubscriptionDAOImpl::groupIdEqual),
+					mapLast(Pair::getValue1, SubscriptionDAOImpl::sourceIdEqual));
+		}
 	}
 }

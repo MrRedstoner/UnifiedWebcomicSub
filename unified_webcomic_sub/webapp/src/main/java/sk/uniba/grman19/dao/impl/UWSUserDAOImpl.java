@@ -3,39 +3,36 @@ package sk.uniba.grman19.dao.impl;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import sk.uniba.grman19.dao.UWSUserDAO;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.entity.UWSUser_;
-import sk.uniba.grman19.repository.UWSUserRepository;
 import sk.uniba.grman19.util.query.SimpleQuery;
 
 @Component
 @Transactional(readOnly = true)
 public class UWSUserDAOImpl implements UWSUserDAO {
 
+	@PersistenceContext
+	private EntityManager entityManager;
 	@Autowired
-	public UWSUserDAOImpl(EntityManager entityManager) {
-		this.entityManager = entityManager;
-		this.queryByName = new SimpleQuery<>(entityManager, UWSUser.class, this::nameEqual);
-	}
-
-	@Autowired
-	private UWSUserRepository userRepository;
-	@SuppressWarnings("unused")
-	private final EntityManager entityManager;
-	private final SimpleQuery<UWSUser, String> queryByName;
+	@Qualifier("userQueryByName")
+	private SimpleQuery<UWSUser, String> queryByName;
 
 	@Override
 	public Optional<UWSUser> getUser(Long id) {
-		return userRepository.findById(id);
+		return Optional.ofNullable(entityManager.find(UWSUser.class, id));
 	}
 
 	@Override
@@ -49,10 +46,20 @@ public class UWSUserDAOImpl implements UWSUserDAO {
 		if (getUser(user.getName()).isPresent()) {
 			throw new IllegalArgumentException("Name already used");
 		}
-		return userRepository.save(user);
+		entityManager.persist(user);
+		return user;
 	}
 
-	private Predicate nameEqual(CriteriaBuilder cb, Root<UWSUser> root, String name) {
+	private static Predicate nameEqual(CriteriaBuilder cb, Root<UWSUser> root, String name) {
 		return cb.equal(root.get(UWSUser_.name), cb.literal(name));
+	}
+
+	@Configuration
+	static class Config {
+		@Bean(name = "userQueryByName")
+		@PersistenceContext
+		SimpleQuery<UWSUser, String> queryByName(EntityManager entityManager) {
+			return new SimpleQuery<>(entityManager, UWSUser.class, UWSUserDAOImpl::nameEqual);
+		}
 	}
 }

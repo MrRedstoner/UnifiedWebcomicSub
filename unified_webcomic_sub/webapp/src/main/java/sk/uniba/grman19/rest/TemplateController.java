@@ -1,5 +1,7 @@
 package sk.uniba.grman19.rest;
 
+import java.lang.invoke.MethodHandles;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -9,11 +11,11 @@ import org.springframework.web.context.request.WebRequest;
 
 @Controller
 public class TemplateController {
-	private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	@GetMapping("/index")
 	public String showIndex(WebRequest request, Model model) {
-		LOGGER.trace("Index");
+		logger.trace("Index");
 		return "index";
 	}
 }

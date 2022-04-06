@@ -1,5 +1,7 @@
 package sk.uniba.grman19.rest;
 
+import java.lang.invoke.MethodHandles;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -25,7 +27,7 @@ import sk.uniba.grman19.service.UWSUserService;
 
 @Controller
 public class RegistrationController {
-	private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	@Autowired
 	private UWSUserService userDetailsService;
@@ -34,7 +36,7 @@ public class RegistrationController {
 	
 	@GetMapping("/registration")
 	public String showRegistrationForm(WebRequest request, Model model) {
-		LOGGER.trace("Registration");
+		logger.trace("Registration");
 		UserRegistration userDto = new UserRegistration();
 		model.addAttribute("user", userDto);
 		return "registration";
@@ -47,7 +49,7 @@ public class RegistrationController {
 		}
 
 		try {
-			LOGGER.info("Attempting registeration");
+			logger.info("Attempting registeration");
 			userDetailsService.registerUser(userDto);
 			autologin(userDto.getUsername(), userDto.getPassword());
 		} catch (RuntimeException e) {
@@ -67,7 +69,7 @@ public class RegistrationController {
 
 		if (auth.isAuthenticated()) {
 			SecurityContextHolder.getContext().setAuthentication(auth);
-			LOGGER.trace("Auto login successfull {}", username);
+			logger.trace("Auto login successfull {}", username);
 		}
 	}
 }

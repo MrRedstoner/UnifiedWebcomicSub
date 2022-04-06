@@ -7,11 +7,15 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +24,6 @@ import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.filter.FilterMapper;
 import sk.uniba.grman19.models.entity.SubGroup;
 import sk.uniba.grman19.models.entity.SubGroup_;
-import sk.uniba.grman19.repository.SubGroupRepository;
 import sk.uniba.grman19.util.query.FilterMapperQuery;
 import sk.uniba.grman19.util.query.SimpleQuery;
 
@@ -28,25 +31,21 @@ import sk.uniba.grman19.util.query.SimpleQuery;
 @Transactional(readOnly = true)
 public class SubGroupDAOImpl implements SubGroupDAO {
 
+	@PersistenceContext
+	private EntityManager entityManager;
 	@Autowired
-	public SubGroupDAOImpl(EntityManager entityManager) {
-		this.entityManager = entityManager;
-		this.queryByName = new SimpleQuery<>(entityManager, SubGroup.class, this::nameEqual);
-		this.queryNonUserById = new SimpleQuery<>(entityManager, SubGroup.class, this::idEqual, asTri(this::nonUser));
-		this.queryByFilter = new FilterMapperQuery<>(entityManager, SubGroup.class, this::makeFilterMapper);
-	}
-
+	@Qualifier("groupQueryByName")
+	private SimpleQuery<SubGroup, String> queryByName;
 	@Autowired
-	private SubGroupRepository repository;
-	@SuppressWarnings("unused")
-	private final EntityManager entityManager;
-	private final SimpleQuery<SubGroup, String> queryByName;
-	private final SimpleQuery<SubGroup, Long> queryNonUserById;
-	private final FilterMapperQuery<SubGroup> queryByFilter;
+	@Qualifier("groupQueryNonUserById")
+	private SimpleQuery<SubGroup, Long> queryNonUserById;
+	@Autowired
+	@Qualifier("groupQueryByFilter")
+	private FilterMapperQuery<SubGroup> queryByFilter;
 
 	@Override
 	public Optional<SubGroup> getGroup(Long id) {
-		return repository.findById(id);
+		return Optional.ofNullable(entityManager.find(SubGroup.class, id));
 	}
 
 	@Override
@@ -62,13 +61,17 @@ public class SubGroupDAOImpl implements SubGroupDAO {
 	@Override
 	@Transactional(readOnly = false)
 	public SubGroup createUserGroup() {
-		return repository.save(new SubGroup(null, null, true));
+		SubGroup group = new SubGroup(null, null, true);
+		entityManager.persist(group);
+		return group;
 	}
 
 	@Override
 	@Transactional(readOnly = false)
 	public SubGroup createPublicGroup(String name, String description) {
-		return repository.save(new SubGroup(name, description, false));
+		SubGroup group = new SubGroup(name, description, false);
+		entityManager.persist(group);
+		return group;
 	}
 
 	@Override
@@ -84,10 +87,10 @@ public class SubGroupDAOImpl implements SubGroupDAO {
 	@Override
 	@Transactional(readOnly = false)
 	public SubGroup saveGroup(SubGroup group) {
-		return repository.save(group);
+		return entityManager.merge(group);
 	}
 
-	private FilterMapper makeFilterMapper(CriteriaBuilder cb, Root<SubGroup> root) {
+	private static FilterMapper makeFilterMapper(CriteriaBuilder cb, Root<SubGroup> root) {
 		return new FilterMapper(cb)
 			.addNumberFilter(FilterColumn.ID, root.get(SubGroup_.id))
 			.addStringFilter(FilterColumn.NAME, root.get(SubGroup_.name))
@@ -95,15 +98,36 @@ public class SubGroupDAOImpl implements SubGroupDAO {
 			.addBooleanFilter(FilterColumn.USER_OWNED, root.get(SubGroup_.userOwned));
 	}
 
-	private Predicate nameEqual(CriteriaBuilder cb, Root<SubGroup> root, String name) {
+	private static Predicate nameEqual(CriteriaBuilder cb, Root<SubGroup> root, String name) {
 		return cb.equal(root.get(SubGroup_.name), cb.literal(name));
 	}
 
-	private Predicate idEqual(CriteriaBuilder cb, Root<SubGroup> root, Long id) {
+	private static Predicate idEqual(CriteriaBuilder cb, Root<SubGroup> root, Long id) {
 		return cb.equal(root.get(SubGroup_.id), cb.literal(id));
 	}
 
-	private Predicate nonUser(CriteriaBuilder cb, Root<SubGroup> root) {
+	private static Predicate nonUser(CriteriaBuilder cb, Root<SubGroup> root) {
 		return cb.isFalse(root.get(SubGroup_.userOwned));
+	}
+
+	@Configuration
+	static class Config {
+		@Bean(name = "groupQueryByName")
+		@PersistenceContext
+		SimpleQuery<SubGroup, String> queryByName(EntityManager entityManager) {
+			return new SimpleQuery<>(entityManager, SubGroup.class, SubGroupDAOImpl::nameEqual);
+		}
+
+		@Bean(name = "groupQueryNonUserById")
+		@PersistenceContext
+		SimpleQuery<SubGroup, Long> queryNonUserById(EntityManager entityManager) {
+			return new SimpleQuery<>(entityManager, SubGroup.class, SubGroupDAOImpl::idEqual, asTri(SubGroupDAOImpl::nonUser));
+		}
+
+		@Bean(name = "groupQueryByFilter")
+		@PersistenceContext
+		FilterMapperQuery<SubGroup> queryByFilter(EntityManager entityManager) {
+			return new FilterMapperQuery<>(entityManager, SubGroup.class, SubGroupDAOImpl::makeFilterMapper);
+		}
 	}
 }
