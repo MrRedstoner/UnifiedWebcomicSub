@@ -40,14 +40,20 @@ public class UWSUserDAOImpl implements UWSUserDAO {
 		return queryByName.querySingle(name);
 	}
 
-	@Transactional(readOnly = false)
 	@Override
+	@Transactional(readOnly = false)
 	public UWSUser createUWSUser(UWSUser user) {
 		if (getUser(user.getName()).isPresent()) {
 			throw new IllegalArgumentException("Name already used");
 		}
 		entityManager.persist(user);
 		return user;
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public UWSUser saveUWSUser(UWSUser user) {
+		return entityManager.merge(user);
 	}
 
 	private static Predicate nameEqual(CriteriaBuilder cb, Root<UWSUser> root, String name) {

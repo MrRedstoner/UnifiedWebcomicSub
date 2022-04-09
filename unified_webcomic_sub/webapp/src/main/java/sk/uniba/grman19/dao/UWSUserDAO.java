@@ -10,4 +10,6 @@ public interface UWSUserDAO {
 	Optional<UWSUser> getUser(String name);
 
 	UWSUser createUWSUser(UWSUser user);
+
+	UWSUser saveUWSUser(UWSUser user);
 }

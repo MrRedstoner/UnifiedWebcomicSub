@@ -25,13 +25,12 @@ import sk.uniba.grman19.dao.SourceDAO;
 import sk.uniba.grman19.dao.SourceUpdateDAO;
 import sk.uniba.grman19.dao.SubGroupDAO;
 import sk.uniba.grman19.dao.SubscriptionDAO;
+import sk.uniba.grman19.dao.UWSUserDAO;
 import sk.uniba.grman19.models.entity.MailSettings;
 import sk.uniba.grman19.models.entity.Source;
 import sk.uniba.grman19.models.entity.SubGroup;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.rest.UserRegistration;
-import sk.uniba.grman19.repository.MailSettingsRepository;
-import sk.uniba.grman19.repository.UWSUserRepository;
 import sk.uniba.grman19.service.UWSUserService;
 
 @Component
@@ -40,9 +39,7 @@ public class DatabaseLoader implements CommandLineRunner {
 	@Autowired
 	private SourceDAO sourceDao;
 	@Autowired
-	private UWSUserRepository userRepository;
-	@Autowired
-	private MailSettingsRepository mailRepository;
+	private UWSUserDAO userDao;
 	@Autowired
 	private UWSUserService userService;
 	@Autowired
@@ -57,31 +54,36 @@ public class DatabaseLoader implements CommandLineRunner {
 	// some test data
 	@Override
 	public void run(String... strings) throws Exception {
+		// create some groups and sources
 		List<Source> sources = IntStream.range(0, 20)
 			.mapToObj(this::createSource)
 			.collect(Collectors.toList());
 		List<SubGroup> groups = IntStream.range(0, 10)
 			.mapToObj(this::createGroup)
 			.collect(Collectors.toList());
+		// add some group relations
 		subscriptionDao.addGroupRelation(groups.get(0), groups.get(1));
 		subscriptionDao.addGroupRelation(groups.get(0), groups.get(2));
 		subscriptionDao.addGroupRelation(groups.get(0), groups.get(3));
 		subscriptionDao.addGroupRelation(groups.get(3), groups.get(4));
 		subscriptionDao.addGroupRelation(groups.get(3), groups.get(5));
 		subscriptionDao.addGroupRelation(groups.get(3), groups.get(6));
+		// create a couple users
 		UserRegistration user;
 		UWSUser uuser;
 		user = makeUserRegistration("root", "usbw", "root@root");
 		uuser = userService.registerUser(user);
+		// make root an owner
 		uuser.setOwner(true);
-		userRepository.save(uuser);
+		uuser = userDao.saveUWSUser(uuser);
 		subscribe(uuser, groups.get(0));
 		user = makeUserRegistration("user", "user", "user@root");
 		uuser = userService.registerUser(user);
+		// add some sources to the first group
 		subscriptionDao.addSourceSubscription(groups.get(0), sources.get(0));
 		subscriptionDao.addSourceSubscription(groups.get(0), sources.get(2));
 		subscriptionDao.addSourceSubscription(groups.get(0), sources.get(4));
-
+		// make 2 identical simple poll sources
 		Map<String, String> attrs = new HashMap<String, String>();
 		attrs.put(SOURCE_TYPE, SIMPLE_POLL);
 		attrs.put(SIMPLE_POLL_URL, "https://davinci.fmph.uniba.sk/~grman19/uws/test.html");
@@ -90,7 +92,9 @@ public class DatabaseLoader implements CommandLineRunner {
 		attrs.put(SIMPLE_POLL_ATTRIBUTE, "href");
 		addSourceAttrs(sources.get(0), attrs);
 		addSourceAttrs(sources.get(1), attrs);
+		// make 1 fancy poll source - cannot be processed
 		addSourceAttrs(sources.get(2), Collections.singletonMap("type", "fancy_poll"));
+		// add some old updates
 		sourceUpdateDao.saveSourceUpdate(sources.get(0), "link0", new Date());
 		sourceUpdateDao.saveSourceUpdate(sources.get(2), "somelink", new Date());
 	}
@@ -102,12 +106,9 @@ public class DatabaseLoader implements CommandLineRunner {
 	}
 
 	private void subscribe(UWSUser uuser, SubGroup group) {
-		Long id = uuser.getId();
-		id = userRepository.findById(id)
+		MailSettings ms = userDao.getUser(uuser.getId())
 			.get()
-			.getMailSettings()
-			.getId();
-		MailSettings ms = mailRepository.findById(id).get();
+			.getMailSettings();
 		subscriptionDao.addGroupRelation(ms.getSubscribe(), group);
 	}
 
