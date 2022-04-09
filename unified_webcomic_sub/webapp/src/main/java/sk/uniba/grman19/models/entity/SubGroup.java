@@ -1,6 +1,7 @@
 package sk.uniba.grman19.models.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,6 +29,8 @@ public class SubGroup extends BaseEntity {
 	private List<GroupChild> parents;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
 	private List<GroupChild> children;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
+	private Set<GroupChildStar> childrenStar;
 
 	public SubGroup() {
 	}
@@ -92,5 +95,13 @@ public class SubGroup extends BaseEntity {
 
 	public void setChildren(List<GroupChild> children) {
 		this.children = children;
+	}
+
+	public Set<GroupChildStar> getChildrenStar() {
+		return childrenStar;
+	}
+
+	public void setChildrenStar(Set<GroupChildStar> childrenStar) {
+		this.childrenStar = childrenStar;
 	}
 }
