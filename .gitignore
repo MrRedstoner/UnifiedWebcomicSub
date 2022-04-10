@@ -7,3 +7,4 @@ package-lock.json
 unified_webcomic_sub/webapp/src/main/resources/static/built/bundle.js
 unified_webcomic_sub/webapp/src/main/resources/static/built/bundle.js.map
 unified_webcomic_sub/webapp/.vscode/tasks.json
+cloc-1.92.exe
