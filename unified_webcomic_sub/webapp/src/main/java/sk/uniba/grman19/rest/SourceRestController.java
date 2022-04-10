@@ -1,8 +1,6 @@
 package sk.uniba.grman19.rest;
 
-import java.util.Collections;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -38,7 +36,7 @@ import sk.uniba.grman19.util.NotFoundException;
 @RequestMapping("/rest/source")
 public class SourceRestController {
 	private static Function<PaginatedList<Source>, PaginatedList<Source>> SOURCES = Cloner.clonePaginated();
-	private static Function<Source, Source> SOURCE = Cloner.clone("sourceSubs");
+	private static Function<Source, Source> SOURCE = Cloner.clone();
 
 	@Autowired
 	private SourceDAO sourceDao;
@@ -102,7 +100,7 @@ public class SourceRestController {
 		}
 		UWSUser user = userDetailsService.requireLoggedInUser();
 		Source source = sourceDao.getSource(update.getId()).orElseThrow(NotFoundException::new);
-		subscriptionService.updateSubscription(user, source, update.getValue());
+		subscriptionService.updateSubscription(user, source, update.getValue(), update.getSubscribe());
 
 		return readDetail(Optional.of(user), update.getId());
 	}
@@ -115,10 +113,10 @@ public class SourceRestController {
 	}
 
 	private Source setDirectSub(Source source, Optional<UWSUser> user) {
-		List<SourceSubscription> subs = user.flatMap(u -> subscriptionService.getDirectSubscription(u, source))
-			.map(Collections::singletonList)
-			.orElse(Collections.emptyList());
-		source.setSourceSubs(subs);
+		Optional<SourceSubscription> subscribe = user.flatMap(u -> subscriptionService.getDirectSubscription(u, source));
+		Optional<SourceSubscription> ignore = user.flatMap(u -> subscriptionService.getDirectIgnore(u, source));
+		source.setSubscribed(subscribe.isPresent());
+		source.setIgnored(ignore.isPresent());
 		return source;
 	}
 
@@ -128,6 +126,8 @@ public class SourceRestController {
 		private Long id;
 		@NotNull
 		private Boolean value;
+		@NotNull
+		private Boolean subscribe;
 
 		public Long getId() {
 			return id;
@@ -143,6 +143,14 @@ public class SourceRestController {
 
 		public void setValue(Boolean value) {
 			this.value = value;
+		}
+
+		public Boolean getSubscribe() {
+			return subscribe;
+		}
+
+		public void setSubscribe(Boolean subscribe) {
+			this.subscribe = subscribe;
 		}
 	}
 

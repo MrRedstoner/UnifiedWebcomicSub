@@ -6,9 +6,14 @@ import { SOURCE_SERVICE_SAVE_DETAIL, SOURCE_SERVICE_READ_DETAIL, SOURCE_SERVICE_
 import { asyncFetchGet, asyncFetchPost } from '../api/apiCall';
 import InputBox from './InputBox';
 
-const makeSubButton = (user: UserPermissionClosure, source: Source, updateSub: (value: string) => void) => {
-	if (source.subscriptions.length === 0) {
-		return (<button disabled={!user.registered} onClick={async () => updateSub("true")}>Subscribe</button>);
+const makeSubButton = (user: UserPermissionClosure, source: Source, updateSub: (value: string) => void, updateIgnore: (value: string) => void) => {
+	if (source.ignored) {
+		return (<button disabled={!user.registered} onClick={async () => updateIgnore("false")}>Unignore</button>);
+	} else if (!source.subscribed) {
+		return (<>
+			<button disabled={!user.registered} onClick={async () => updateSub("true")}>Subscribe</button>
+			<button disabled={!user.registered} onClick={async () => updateIgnore("true")}>Ignore</button>
+		</>);
 	} else {
 		return (<button disabled={!user.registered} onClick={async () => updateSub("false")}>Unsubscribe</button>);
 	}
@@ -68,18 +73,18 @@ const SourceDetail: React.FC<Props> = ({ id, user }) => {
 	} else if (!isLoaded) {
 		return <div>Loading...</div>;
 	} else {
-		const updateSub = async (value: string) => {
+		const updateSubImpl = async (sub: boolean, value: string) => {
 			setIsLoaded(false);
 			setError(null);
 			const data = {
 				id: id.toString(),
+				subscribe: sub.toString(),
 				value: value
 			};
 			await asyncFetchPost(SOURCE_SERVICE_UPDATE_SUBSCRIBE, data, setSource, setError, setIsLoaded);
 		}
-		const subButton = makeSubButton(user, source, updateSub);
+		const subButton = makeSubButton(user, source, value => updateSubImpl(true, value), value => updateSubImpl(false, value));
 
-		//TODO allow showing with null id for create
 		if (user.editSource) {
 			return (
 				<>

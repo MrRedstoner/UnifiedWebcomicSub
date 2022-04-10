@@ -6,8 +6,11 @@ import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Entity
 public class Source extends BaseEntity {
@@ -21,9 +24,15 @@ public class Source extends BaseEntity {
 	private List<SourceAttribute> sourceAttribute;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "source")
 	private List<SourceUpdate> sourceUpdates;
-	@JsonProperty("subscriptions")
+	@JsonIgnore
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "source")
 	private List<SourceSubscription> sourceSubs;
+	@Transient
+	@JsonInclude(Include.NON_NULL)
+	private Boolean subscribed;
+	@Transient
+	@JsonInclude(Include.NON_NULL)
+	private Boolean ignored;
 
 	public Source() {
 	}
@@ -71,6 +80,22 @@ public class Source extends BaseEntity {
 
 	public void setSourceSubs(List<SourceSubscription> sourceSubs) {
 		this.sourceSubs = sourceSubs;
+	}
+
+	public Boolean getSubscribed() {
+		return subscribed;
+	}
+
+	public void setSubscribed(Boolean subscribed) {
+		this.subscribed = subscribed;
+	}
+
+	public Boolean getIgnored() {
+		return ignored;
+	}
+
+	public void setIgnored(Boolean ignored) {
+		this.ignored = ignored;
 	}
 
 	@Override

@@ -56,16 +56,27 @@ public class SubscriptionService {
 	}
 
 	@Transactional(readOnly = false)
-	public void updateSubscription(UWSUser user, Source source, boolean subscribed) {
-		auditLogDao.saveLog(user, "Updated subscription to source " + source.getId() + " to " + subscribed);
-		if (subscribed) {
-			subscriptionDao.addSourceSubscription(user.getMailSettings().getSubscribe(), source);
+	public void updateSubscription(UWSUser user, Source source, boolean value, boolean subscribe) {
+		SubGroup group;
+		if (subscribe) {
+			auditLogDao.saveLog(user, "Updated subscription to source " + source.getId() + " to " + value);
+			group = user.getMailSettings().getSubscribe();
 		} else {
-			subscriptionDao.removeSourceSubscription(user.getMailSettings().getSubscribe(), source);
+			auditLogDao.saveLog(user, "Updated ignore to source " + source.getId() + " to " + value);
+			group = user.getMailSettings().getIgnore();
+		}
+		if (value) {
+			subscriptionDao.addSourceSubscription(group, source);
+		} else {
+			subscriptionDao.removeSourceSubscription(group, source);
 		}
 	}
 
 	public Optional<SourceSubscription> getDirectSubscription(UWSUser user, Source source) {
 		return subscriptionDao.getSourceSubscription(user.getMailSettings().getSubscribe(), source);
+	}
+
+	public Optional<SourceSubscription> getDirectIgnore(UWSUser user, Source source) {
+		return subscriptionDao.getSourceSubscription(user.getMailSettings().getIgnore(), source);
 	}
 }

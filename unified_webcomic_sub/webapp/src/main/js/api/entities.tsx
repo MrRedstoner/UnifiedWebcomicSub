@@ -29,7 +29,8 @@ type Source = {
 	id: number;
 	name: string;
 	description: string;
-	subscriptions?: SourceSubscription[];
+	subscribed?: boolean;
+	ignored?: boolean;
 }
 
 type Group = {
