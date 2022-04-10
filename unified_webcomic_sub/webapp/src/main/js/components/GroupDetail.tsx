@@ -7,7 +7,7 @@ import { asyncFetchGet, asyncFetchPost } from '../api/apiCall';
 import { GROUP_SERVICE_READ_DETAIL, GROUP_SERVICE_SAVE_DETAIL, GROUP_SERVICE_UPDATE_SUBSCRIBE, GROUP_SERVICE_UPDATE_CHILDREN, GROUP_SERVICE_UPDATE_SOURCES } from '../api/apiEndpoints';
 
 const makeSubButton = (user: UserPermissionClosure, group: Group, updateSub: (value: string) => void) => {
-	if (group.parents.length === 0) {
+	if (!group.subscribed) {
 		return (<button disabled={!user.registered} onClick={async () => updateSub("true")}>Subscribe</button>);
 	} else {
 		return (<button disabled={!user.registered} onClick={async () => updateSub("false")}>Unsubscribe</button>);

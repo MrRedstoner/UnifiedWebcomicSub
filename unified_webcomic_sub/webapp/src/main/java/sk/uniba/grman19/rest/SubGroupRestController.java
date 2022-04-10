@@ -1,8 +1,6 @@
 package sk.uniba.grman19.rest;
 
-import java.util.Collections;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -42,7 +40,7 @@ import sk.uniba.grman19.util.NotFoundException;
 @RequestMapping("/rest/group")
 public class SubGroupRestController {
 	private static Function<PaginatedList<SubGroup>, PaginatedList<SubGroup>> GROUPS = Cloner.clonePaginated();
-	private static Function<SubGroup, SubGroup> GROUP = Cloner.clone("parents", "children.child", "sourceSubs.source");
+	private static Function<SubGroup, SubGroup> GROUP = Cloner.clone("children.child", "sourceSubs.source");
 
 	@Autowired
 	private SubGroupService subGroupService;
@@ -150,10 +148,8 @@ public class SubGroupRestController {
 	}
 
 	private SubGroup setDirectSub(SubGroup group, Optional<UWSUser> user) {
-		List<GroupChild> subs = user.flatMap(u -> subscriptionService.getDirectSubscription(u, group))
-			.map(Collections::singletonList)
-			.orElse(Collections.emptyList());
-		group.setParents(subs);
+		Optional<GroupChild> subs = user.flatMap(u -> subscriptionService.getDirectSubscription(u, group));
+		group.setSubscribed(subs.isPresent());
 		return group;
 	}
 

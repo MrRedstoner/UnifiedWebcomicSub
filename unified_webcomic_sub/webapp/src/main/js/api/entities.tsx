@@ -37,7 +37,7 @@ type Group = {
 	id: number;
 	name: string;
 	description: string;
-	parents?: GroupChild[];
+	subscribed?: boolean;
 	children?: GroupChild[];
 	sources?: SourceSubscription[];
 }

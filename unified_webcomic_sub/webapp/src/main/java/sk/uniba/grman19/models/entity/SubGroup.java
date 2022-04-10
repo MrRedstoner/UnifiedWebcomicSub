@@ -7,8 +7,11 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Entity(name = "sub_group")
 public class SubGroup extends BaseEntity {
@@ -31,6 +34,9 @@ public class SubGroup extends BaseEntity {
 	private List<GroupChild> children;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "parent")
 	private Set<GroupChildStar> childrenStar;
+	@Transient
+	@JsonInclude(Include.NON_NULL)
+	private Boolean subscribed;
 
 	public SubGroup() {
 	}
@@ -103,5 +109,13 @@ public class SubGroup extends BaseEntity {
 
 	public void setChildrenStar(Set<GroupChildStar> childrenStar) {
 		this.childrenStar = childrenStar;
+	}
+
+	public Boolean getSubscribed() {
+		return subscribed;
+	}
+
+	public void setSubscribed(Boolean subscribed) {
+		this.subscribed = subscribed;
 	}
 }
