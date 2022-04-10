@@ -21,6 +21,14 @@ public class GroupChildStar {
 	@JoinColumn(name = "child")
 	private SubGroup child;
 
+	public SubGroup getParent() {
+		return parent;
+	}
+
+	public SubGroup getChild() {
+		return child;
+	}
+
 	/*
 	CREATE VIEW IF NOT EXISTS group_child_star AS
 		WITH RECURSIVE GCS(P,C) AS (

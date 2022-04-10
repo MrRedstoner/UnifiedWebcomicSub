@@ -9,6 +9,7 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ public class MailResolvingTest {
 	@PersistenceContext
 	private EntityManager entityManager;
 
+	@Ignore
 	@Test
 	public void test() {
 		assertNotNull(userDao);

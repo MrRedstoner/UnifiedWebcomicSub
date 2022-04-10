@@ -8,6 +8,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -22,10 +24,16 @@ import org.springframework.transaction.annotation.Transactional;
 import sk.uniba.grman19.dao.SourceDAO;
 import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.filter.FilterMapper;
+import sk.uniba.grman19.models.entity.GroupChildStar;
+import sk.uniba.grman19.models.entity.GroupChildStar_;
 import sk.uniba.grman19.models.entity.Source;
 import sk.uniba.grman19.models.entity.SourceAttribute;
 import sk.uniba.grman19.models.entity.SourceAttribute_;
+import sk.uniba.grman19.models.entity.SourceSubscription;
+import sk.uniba.grman19.models.entity.SourceSubscription_;
 import sk.uniba.grman19.models.entity.Source_;
+import sk.uniba.grman19.models.entity.SubGroup;
+import sk.uniba.grman19.models.entity.SubGroup_;
 import sk.uniba.grman19.util.query.FilterMapperQuery;
 import sk.uniba.grman19.util.query.SimpleQuery;
 
@@ -58,6 +66,7 @@ public class SourceDAOImpl implements SourceDAO {
 	}
 
 	@Override
+	@Transactional(readOnly = false)
 	public Source createSource(String name, String description) {
 		Source source = new Source(name, description);
 		entityManager.persist(source);
@@ -70,6 +79,7 @@ public class SourceDAOImpl implements SourceDAO {
 	}
 
 	@Override
+	@Transactional(readOnly = false)
 	public Source saveSource(Source source) {
 		return entityManager.merge(source);
 	}
@@ -91,6 +101,20 @@ public class SourceDAOImpl implements SourceDAO {
 
 		cq.select(root);
 		cq.where(cb.exists(attribute));
+		return entityManager.createQuery(cq).getResultList();
+	}
+
+	@Override
+	public List<Source> resolveSources(SubGroup subscribe, SubGroup ignore) {
+		// TODO implement ignore
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Source> cq = cb.createQuery(Source.class).distinct(true);
+		Root<GroupChildStar> root = cq.from(GroupChildStar.class);
+		Join<GroupChildStar, SubGroup> children = root.join(GroupChildStar_.child);
+		ListJoin<SubGroup, SourceSubscription> sourceSubs = children.join(SubGroup_.sourceSubs);
+		Join<SourceSubscription, Source> sources = sourceSubs.join(SourceSubscription_.source);
+		cq.select(sources);
+		cq.where(cb.equal(root.get(GroupChildStar_.parent), cb.literal(subscribe.getId())));
 		return entityManager.createQuery(cq).getResultList();
 	}
 

@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.models.entity.Source;
+import sk.uniba.grman19.models.entity.SubGroup;
 
 public interface SourceDAO {
 	Optional<Source> getSource(Long id);
@@ -21,4 +22,6 @@ public interface SourceDAO {
 	Source saveSource(Source source);
 
 	List<Source> getSourcesByAttribute(String key, String value);
+
+	List<Source> resolveSources(SubGroup subscribe, SubGroup ignore);
 }

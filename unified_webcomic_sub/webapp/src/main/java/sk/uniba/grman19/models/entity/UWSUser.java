@@ -38,6 +38,8 @@ public class UWSUser extends BaseEntity {
 	private List<Post> posts;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private Set<PollVote> votes;
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	private Set<SeenUpdate> seenUpdates;
 
 	public UWSUser() {
 	}
@@ -151,5 +153,13 @@ public class UWSUser extends BaseEntity {
 
 	public void setVotes(Set<PollVote> votes) {
 		this.votes = votes;
+	}
+
+	public Set<SeenUpdate> getSeenUpdates() {
+		return seenUpdates;
+	}
+
+	public void setSeenUpdates(Set<SeenUpdate> seenUpdates) {
+		this.seenUpdates = seenUpdates;
 	}
 }

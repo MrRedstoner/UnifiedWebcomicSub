@@ -17,6 +17,14 @@ public class SeenUpdate extends BaseEntity {
 	@JoinColumn(name = "update_id")
 	private SourceUpdate update;
 
+	public SeenUpdate() {
+	}
+
+	public SeenUpdate(UWSUser user, SourceUpdate update) {
+		this.user = user;
+		this.update = update;
+	}
+
 	public UWSUser getUser() {
 		return user;
 	}

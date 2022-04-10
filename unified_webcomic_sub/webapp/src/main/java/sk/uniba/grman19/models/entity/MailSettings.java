@@ -47,6 +47,14 @@ public class MailSettings extends BaseEntity {
 		this.lastWeekly = lastWeekly;
 	}
 
+	public UWSUser getUser() {
+		return user;
+	}
+
+	public void setUser(UWSUser user) {
+		this.user = user;
+	}
+
 	public String getMailAddress() {
 		return mailAddress;
 	}
@@ -109,9 +117,5 @@ public class MailSettings extends BaseEntity {
 
 	public void setLastWeekly(Date lastWeekly) {
 		this.lastWeekly = lastWeekly;
-	}
-
-	public String toString() {
-		return "MS: " + getId() + " user " + user.getName();
 	}
 }

@@ -8,7 +8,9 @@ import sk.uniba.grman19.models.entity.Source;
 import sk.uniba.grman19.models.entity.SourceUpdate;
 
 public interface SourceUpdateDAO {
-	void saveSourceUpdate(Source source, String value, Date date);
+	SourceUpdate saveSourceUpdate(Source source, String value, Date date);
 
-	List<SourceUpdate> getLastUpdates(Set<Long> ids);
+	List<SourceUpdate> getLastUpdates(Set<Long> sourceIds);
+
+	List<SourceUpdate> getUnseenUpdates(Long userId, Set<Long> sourceIds);
 }

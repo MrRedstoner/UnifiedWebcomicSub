@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import sk.uniba.grman19.dao.AuditLogDAO;
 import sk.uniba.grman19.dao.MailSettingsDAO;
+import sk.uniba.grman19.dao.UWSUserDAO;
 import sk.uniba.grman19.models.entity.MailSettings;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.rest.MailSettingUpdate;
@@ -21,10 +22,15 @@ public class MailSettingsService {
 	@Autowired
 	private MailSettingsDAO mailSettingsDao;
 	@Autowired
+	private UWSUserDAO userDao;
+	@Autowired
 	private AuditLogDAO auditLogDao;
 
 	@Transactional(readOnly = false)
 	public void updateUserMailSettings(UWSUser user, MailSettingUpdate updates) {
+		// fetch fresh for transaction
+		user = userDao.getUser(user.getId()).get();
+
 		MailSettings settings = user.getMailSettings();
 		Optional<MailSettingUpdate> omsu = Optional.of(updates);
 		List<String> changes = new LinkedList<>();
@@ -44,6 +50,10 @@ public class MailSettingsService {
 
 		auditLogDao.saveLog(user, "Updated mail settings " + changes.toString());
 		mailSettingsDao.saveMailSettings(settings);
+	}
+
+	public List<MailSettings> getActiveDailyMail() {
+		return mailSettingsDao.getActiveDailyMail();
 	}
 
 	private <O> Function<O, O> addChange(String fieldName, List<String> list) {
