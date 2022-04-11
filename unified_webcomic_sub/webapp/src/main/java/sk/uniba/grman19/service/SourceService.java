@@ -13,21 +13,25 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.javatuples.Triplet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import sk.uniba.grman19.dao.AuditLogDAO;
+import sk.uniba.grman19.dao.SourceAttributeDAO;
 import sk.uniba.grman19.dao.SourceDAO;
 import sk.uniba.grman19.dao.SourceUpdateDAO;
 import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.models.PaginatedList;
 import sk.uniba.grman19.models.entity.Source;
+import sk.uniba.grman19.models.entity.SourceAttribute;
 import sk.uniba.grman19.models.entity.SourceUpdate;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.rest.NameDescriptionUpdate;
 import sk.uniba.grman19.util.BadRequestException;
 import sk.uniba.grman19.util.NotFoundException;
+import sk.uniba.grman19.util.UpdateUtils;
 
 @Service
 public class SourceService {
@@ -37,6 +41,8 @@ public class SourceService {
 	private AuditLogDAO auditLogDao;
 	@Autowired
 	private SourceUpdateDAO sourceUpdateDao;
+	@Autowired
+	private SourceAttributeDAO sourceAttributeDao;
 
 	public PaginatedList<Source> getSources(int offset, int limit, Map<FilterColumn, String> filters) {
 		long count = sourceDao.getSourceCount(filters);
@@ -54,6 +60,7 @@ public class SourceService {
 		return source;
 	}
 
+	@Transactional(readOnly = false)
 	public Source updateSource(UWSUser user, NameDescriptionUpdate update) {
 		Source source = sourceDao.getSource(update.getId()).orElseThrow(NotFoundException::new);
 		Optional<NameDescriptionUpdate> ondu = Optional.of(update);
@@ -90,6 +97,29 @@ public class SourceService {
 
 	public void onSourceUpdate(Source source, String value) {
 		sourceUpdateDao.saveSourceUpdate(source, value, new Date());
+	}
+
+	public Map<String, String> getProcessedAttributes(Source source) {
+		return source.getSourceAttribute()
+			.stream()
+			.collect(Collectors.toMap(SourceAttribute::getName, SourceAttribute::getValue));
+	}
+
+	@Transactional(readOnly = false)
+	public Map<String, String> updateSourceAttributes(UWSUser user, Source source, Map<String, String> attributes) {
+		auditLogDao.saveLog(user, "Updates attributes for " + source.getId() + " to " + attributes.toString());
+
+		Map<String, SourceAttribute> oldAttributes = source.getSourceAttribute()
+			.stream()
+			.collect(Collectors.toMap(SourceAttribute::getName, sa -> sa));
+
+		Triplet<Map<String, String>, Map<String, String>, Set<String>> toUpdate = UpdateUtils.merge(oldAttributes, attributes);
+		Map<String, String> create = toUpdate.getValue0();
+		Map<String, String> update = toUpdate.getValue1();
+		Set<String> delete = toUpdate.getValue2();
+		sourceAttributeDao.updateAttributes(source, create, update, delete);
+
+		return getProcessedAttributes(sourceDao.getSource(source.getId()).get());
 	}
 
 	private <O> Function<O, O> addChange(String fieldName, List<String> list) {

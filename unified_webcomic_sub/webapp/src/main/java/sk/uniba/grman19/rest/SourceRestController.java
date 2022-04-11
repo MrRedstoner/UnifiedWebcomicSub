@@ -105,6 +105,23 @@ public class SourceRestController {
 		return readDetail(Optional.of(user), update.getId());
 	}
 
+	@RequestMapping(method = RequestMethod.GET, path = "/readAttr", produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String, String> readAttributes(@RequestParam(name = "id") Long id) {
+		userDetailsService.requireEditSource();
+		Source source = sourceDao.getSource(id).orElseThrow(NotFoundException::new);
+		return sourceService.getProcessedAttributes(source);
+	}
+
+	@RequestMapping(method = RequestMethod.POST, path = "/saveAttr", produces = MediaType.APPLICATION_JSON_VALUE)
+	public Map<String, String> updateAttributes(@RequestBody @Valid AttributeUpdate update, BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) {
+			throw new BadRequestException(bindingResult);
+		}
+		UWSUser user = userDetailsService.requireEditSource();
+		Source source = sourceDao.getSource(update.getId()).orElseThrow(NotFoundException::new);
+		return sourceService.updateSourceAttributes(user, source, update.getAttributes());
+	}
+
 	private Source readDetail(Optional<UWSUser> user, Long id) {
 		return sourceDao.getSource(id)
 			.map(g -> setDirectSub(g, user))
@@ -177,6 +194,30 @@ public class SourceRestController {
 
 		public void setDescription(String description) {
 			this.description = description;
+		}
+	}
+
+	@SuppressWarnings("unused") // false positive on some setters
+	private static final class AttributeUpdate {
+		@NotNull
+		private Long id;
+		@NotNull
+		private Map<String, String> attributes;
+
+		public Long getId() {
+			return id;
+		}
+
+		public void setId(Long id) {
+			this.id = id;
+		}
+
+		public Map<String, String> getAttributes() {
+			return attributes;
+		}
+
+		public void setAttributes(Map<String, String> attributes) {
+			this.attributes = attributes;
 		}
 	}
 }

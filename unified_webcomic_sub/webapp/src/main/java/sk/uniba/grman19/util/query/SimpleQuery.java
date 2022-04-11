@@ -47,7 +47,7 @@ public class SimpleQuery<E, A> {
 		CriteriaDelete<E> cq = cb.createCriteriaDelete(clazz);
 		Root<E> root = cq.from(clazz);
 		cq.where(with.apply(cb, root, argument));
-
+		
 		return entityManager.createQuery(cq).executeUpdate();
 	}
 

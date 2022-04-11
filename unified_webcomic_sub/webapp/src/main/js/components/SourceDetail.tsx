@@ -5,6 +5,7 @@ import { UserPermissionClosure, Source } from '../api/entities';
 import { SOURCE_SERVICE_SAVE_DETAIL, SOURCE_SERVICE_READ_DETAIL, SOURCE_SERVICE_UPDATE_SUBSCRIBE } from '../api/apiEndpoints';
 import { asyncFetchGet, asyncFetchPost } from '../api/apiCall';
 import InputBox from './InputBox';
+import SourceAttributeEdit from './SourceAttributeEdit';
 
 const makeSubButton = (user: UserPermissionClosure, source: Source, updateSub: (value: string) => void, updateIgnore: (value: string) => void) => {
 	if (source.ignored) {
@@ -34,6 +35,7 @@ const SourceDetail: React.FC<Props> = ({ id, user }) => {
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [source, setSource] = useState<Source>(null);
 	const [changes, setChanges] = useState<SourceChange>({});
+	const [editAttr, setEditAttr] = useState(false);
 
 	const onSave = async () => {
 		const data = Object.assign({ id: id.toString() }, changes);
@@ -85,6 +87,12 @@ const SourceDetail: React.FC<Props> = ({ id, user }) => {
 		}
 		const subButton = makeSubButton(user, source, value => updateSubImpl(true, value), value => updateSubImpl(false, value));
 
+		const editAttributes = () => {
+			setEditAttr(!editAttr);
+		}
+
+		const editAttrArea = editAttr ? <SourceAttributeEdit id={id} /> : <></>;
+
 		if (user.editSource) {
 			return (
 				<>
@@ -94,7 +102,9 @@ const SourceDetail: React.FC<Props> = ({ id, user }) => {
 					<InputBox label="Description" initialValue={source.description} setValue={onDescription} />
 					<br />
 					<button onClick={onSave}>Save</button>
+					<button onClick={editAttributes}>{editAttr ? "Close attributes" : "Edit attributes"}</button>
 					{subButton}
+					{editAttrArea}
 				</>
 			);
 		} else {
