@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +23,10 @@ import sk.uniba.grman19.service.UWSUserService;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+	@Value("${server.security.enable.devmode:false}")
+	private Boolean devMode;
+
 	@Autowired
 	private UWSUserService userDetailsService;
 
@@ -36,21 +41,22 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	public AuthenticationManager authenticationManagerBean() throws Exception {
 		return super.authenticationManagerBean();
 	}
-
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		//for testing
-		http.authorizeRequests()
-			.antMatchers("/h2-console/*").permitAll()
-			.and().headers().frameOptions().disable()
-			.and().csrf().disable();
+		if(devMode){
+			//for testing
+			http.authorizeRequests()
+				.antMatchers("/h2-console/*").permitAll()
+				.and().headers().frameOptions().disable()
+				.and().csrf().disable();
+		}
 
 		http.authorizeRequests()
 			.antMatchers("/registration")
 				.anonymous()
 			.antMatchers("/built/**", "/main.css", "/favicon.ico")
 				.permitAll()
-			.antMatchers("/index", "/api/sources", "/rest/user/getlogged", "/rest/source/**", "/rest/group/**")
+			.antMatchers("/index", "/sources", "/groups", "/rest/user/getlogged", "/rest/source/**", "/rest/group/**")
 				.permitAll()// TODO set up nicely
 			.anyRequest()
 				.authenticated()

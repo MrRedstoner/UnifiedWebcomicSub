@@ -5,7 +5,6 @@ const ReactDOM = require('react-dom');
 import UserArea from './UserArea'
 
 class App extends React.Component {
-
 	render() {
 		return (<UserArea />);
 	}

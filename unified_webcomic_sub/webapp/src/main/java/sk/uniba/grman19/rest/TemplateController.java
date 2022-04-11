@@ -13,7 +13,7 @@ import org.springframework.web.context.request.WebRequest;
 public class TemplateController {
 	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	@GetMapping("/index")
+	@GetMapping({ "/index", "/sources", "/groups", "/settings" })
 	public String showIndex(WebRequest request, Model model) {
 		logger.trace("Index");
 		return "index";
