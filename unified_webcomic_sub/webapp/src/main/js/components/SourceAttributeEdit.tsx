@@ -59,9 +59,8 @@ const SourceAttributeEdit: React.FC<Props> = ({ id }) => {
 	}
 
 	const showAttr = (name: string, value: string) => {
-		//TODO
-		//setInName(name);
-		//setInValue(value);
+		setInName(name);
+		setInValue(value);
 	}
 
 	if (error) {
