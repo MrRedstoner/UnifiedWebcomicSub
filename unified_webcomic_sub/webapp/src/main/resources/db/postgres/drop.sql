@@ -1,3 +1,4 @@
+DROP VIEW group_child_star;
 DROP TABLE poll_vote;
 DROP TABLE seen_update;
 DROP TABLE seen_post;
