@@ -47,8 +47,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			//for testing
 			http.authorizeRequests()
 				.antMatchers("/h2-console/*").permitAll()
-				.and().headers().frameOptions().disable()
-				.and().csrf().disable();
+				.and().headers().frameOptions().disable();
 		}
 
 		http.authorizeRequests()
@@ -68,7 +67,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 			.httpBasic()
 			.and()
 			.logout()
-				.logoutSuccessUrl("/index");
+				.logoutSuccessUrl("/index")
+			.and()
+				.csrf().disable();
 	}
 
 	@Bean
