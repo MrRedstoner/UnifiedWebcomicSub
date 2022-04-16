@@ -1,11 +1,12 @@
 package sk.uniba.grman19.service;
 
+import static sk.uniba.grman19.util.ConversionUtils.getIds;
+
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,6 @@ import sk.uniba.grman19.dao.UWSUserDAO;
 import sk.uniba.grman19.models.entity.MailSettings;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.rest.MailSettingUpdate;
-import static sk.uniba.grman19.util.ConversionUtils.getIds;
-import static sk.uniba.grman19.util.ConversionUtils.toUtilDate;
 
 @Service
 public class MailSettingsService {

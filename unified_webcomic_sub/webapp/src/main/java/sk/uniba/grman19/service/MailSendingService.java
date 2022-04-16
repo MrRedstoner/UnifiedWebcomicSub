@@ -74,6 +74,7 @@ public class MailSendingService {
 		if (sources.isEmpty()) {
 			return Collections.emptyList();
 		}
+		logger.debug(sources.stream().map(Source::getName).collect(Collectors.joining(", ")));
 
 		Set<Long> sourceIds = sources.stream()
 			.map(Source::getId)

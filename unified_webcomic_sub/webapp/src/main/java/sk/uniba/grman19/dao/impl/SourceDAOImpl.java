@@ -113,8 +113,14 @@ public class SourceDAOImpl implements SourceDAO {
 		Join<GroupChildStar, SubGroup> children = root.join(GroupChildStar_.child);
 		ListJoin<SubGroup, SourceSubscription> sourceSubs = children.join(SubGroup_.sourceSubs);
 		Join<SourceSubscription, Source> sources = sourceSubs.join(SourceSubscription_.source);
-		cq.select(sources);
-		cq.where(cb.equal(root.get(GroupChildStar_.parent), cb.literal(subscribe.getId())));
+
+		Subquery<Source> ignored = cq.subquery(Source.class);
+		Root<SourceSubscription> rootIgnored = ignored.from(SourceSubscription.class);
+		ignored.where(cb.equal(rootIgnored.get(SourceSubscription_.group), cb.literal(ignore.getId())));
+		ignored.select(rootIgnored.get(SourceSubscription_.source));
+
+		cq.select(sources).distinct(true);
+		cq.where(cb.equal(root.get(GroupChildStar_.parent), cb.literal(subscribe.getId())), sources.in(ignored).not());
 		return entityManager.createQuery(cq).getResultList();
 	}
 

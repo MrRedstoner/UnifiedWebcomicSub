@@ -127,6 +127,7 @@ public class DatabaseLoader implements CommandLineRunner {
 		subscribe(user2, sources.get(11));
 		// user3: direct and indirect subs
 		subscribe(user3, groups.get(0));
+		ignore(user3, sources.get(4));
 		subscribe(user3, sources.get(10));
 		subscribe(user3, sources.get(11));
 		// user4: cycle in groups - does not play nice with H2
@@ -160,6 +161,13 @@ public class DatabaseLoader implements CommandLineRunner {
 			.get()
 			.getMailSettings();
 		subscriptionDao.addSourceSubscription(ms.getSubscribe(), source);
+	}
+
+	private void ignore(UWSUser uuser, Source source) {
+		MailSettings ms = userDao.getUser(uuser.getId())
+			.get()
+			.getMailSettings();
+		subscriptionDao.addSourceSubscription(ms.getIgnore(), source);
 	}
 
 	private Source createSource(int number) {
