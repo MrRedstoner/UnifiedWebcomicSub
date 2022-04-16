@@ -1,9 +1,14 @@
 package sk.uniba.grman19.service;
 
+import static sk.uniba.grman19.util.ConversionUtils.toUtilDate;
+
 import java.lang.invoke.MethodHandles;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -42,15 +47,24 @@ public class MailSendingService {
 
 	@Transactional(readOnly = false)
 	public void sendDailyMail() {
-		List<MailSettings> users = mailSettingsService.getActiveDailyMail();
-		// logger.error(users.stream().map(MailSettings::getMailAddress).collect(Collectors.joining(", ")));
+		Date today = toUtilDate(LocalDate.now());
+		List<MailSettings> users = mailSettingsService.getActiveDailyMail(today);
+		List<MailSettings> usersSent = new ArrayList<>();
+		logger.debug(users.stream().map(MailSettings::getMailAddress).collect(Collectors.joining(", ")));
 		for (MailSettings settings : users) {
 			try {
 				List<SourceUpdate> sent = sendMail(settings);
-				seenUpdateService.updateSeenUpdates(settings.getUser(), sent);
+				// TODO only update if nonempty, update last sent
+				if (!sent.isEmpty()) {
+					usersSent.add(settings);
+					seenUpdateService.updateSeenUpdates(settings.getUser(), sent);
+				}
 			} catch (Exception e) {
 				logger.error("Error sending mail", e);
 			}
+		}
+		if (!usersSent.isEmpty()) {
+			mailSettingsService.saveLastDaily(usersSent, today);
 		}
 	}
 

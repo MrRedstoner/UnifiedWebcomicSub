@@ -1,9 +1,11 @@
 package sk.uniba.grman19.service;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import sk.uniba.grman19.dao.UWSUserDAO;
 import sk.uniba.grman19.models.entity.MailSettings;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.rest.MailSettingUpdate;
+import static sk.uniba.grman19.util.ConversionUtils.getIds;
+import static sk.uniba.grman19.util.ConversionUtils.toUtilDate;
 
 @Service
 public class MailSettingsService {
@@ -52,8 +56,12 @@ public class MailSettingsService {
 		mailSettingsDao.saveMailSettings(settings);
 	}
 
-	public List<MailSettings> getActiveDailyMail() {
-		return mailSettingsDao.getActiveDailyMail();
+	public List<MailSettings> getActiveDailyMail(Date today) {
+		return mailSettingsDao.getActiveDailyMail(today);
+	}
+
+	public void saveLastDaily(List<MailSettings> usersSent, Date date) {
+		mailSettingsDao.updateLastDaily(getIds(usersSent), date);
 	}
 
 	private <O> Function<O, O> addChange(String fieldName, List<String> list) {

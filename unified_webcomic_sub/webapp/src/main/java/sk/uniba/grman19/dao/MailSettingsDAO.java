@@ -1,5 +1,7 @@
 package sk.uniba.grman19.dao;
 
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import sk.uniba.grman19.models.entity.MailSettings;
@@ -10,5 +12,7 @@ public interface MailSettingsDAO {
 
 	void saveMailSettings(MailSettings settings);
 
-	List<MailSettings> getActiveDailyMail();
+	List<MailSettings> getActiveDailyMail(Date today);
+
+	void updateLastDaily(Collection<Long> usersSent, Date date);
 }

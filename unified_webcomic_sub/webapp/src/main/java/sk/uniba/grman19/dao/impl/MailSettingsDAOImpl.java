@@ -1,12 +1,14 @@
 package sk.uniba.grman19.dao.impl;
 
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Root;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +58,24 @@ public class MailSettingsDAOImpl implements MailSettingsDAO {
 	}
 
 	@Override
-	public List<MailSettings> getActiveDailyMail() {
-		return queryByFilter.queryList(0, Integer.MAX_VALUE, Collections.singletonMap(FilterColumn.DAILY, "1"));
+	public List<MailSettings> getActiveDailyMail(Date today) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<MailSettings> cq = cb.createQuery(MailSettings.class);
+		Root<MailSettings> root = cq.from(MailSettings.class);
+		cq.select(root);
+		cq.where(cb.isTrue(root.get(MailSettings_.daily)), cb.greaterThan(cb.literal(today), root.get(MailSettings_.lastDaily)));
+		return entityManager.createQuery(cq).getResultList();
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public void updateLastDaily(Collection<Long> usersSent, Date date) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaUpdate<MailSettings> cq = cb.createCriteriaUpdate(MailSettings.class);
+		Root<MailSettings> root = cq.from(MailSettings.class);
+		cq.set(MailSettings_.lastDaily, cb.literal(date));
+		cq.where(root.get(MailSettings_.id).in(usersSent));
+		entityManager.createQuery(cq).executeUpdate();
 	}
 
 	private static FilterMapper makeFilterMapper(CriteriaBuilder cb, Root<MailSettings> root) {
