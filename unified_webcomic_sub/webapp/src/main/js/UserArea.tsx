@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import { fetchGetEffect } from './api/apiCall'
 import { LoginLink, LogoutLink, RegisterLink } from './Links'
 import { GET_LOGGED_IN_USER } from './api/apiEndpoints'
-import { UWSUser } from './api/entities'
+import { UWSUser, MailSettings } from './api/entities'
 import MailSettingsPane from './components/MailSettingsPane'
 import SourcesPane from './components/SourcesPane'
 import GroupPane from './components/GroupPane'
@@ -41,6 +41,12 @@ const UserArea: React.FC = () => {
 
 	useEffect(fetchGetEffect(GET_LOGGED_IN_USER, setUser, setError, setIsLoaded), [])
 
+	const updateMailSettings = (ms: MailSettings) => {
+		const newUser = Object.assign({}, user);
+		newUser.mailSettings = ms;
+		setUser(newUser);
+	}
+
 	if (error) {
 		return <div>Error: {error.message}</div>;
 	} else if (!isLoaded) {
@@ -55,7 +61,7 @@ const UserArea: React.FC = () => {
 					<Route path="/sources" element={<SourcesPane user={userPerms} />} />
 					<Route path="/groups" element={<GroupPane user={userPerms} />} />
 					{user !== null &&
-						<Route path="/settings" element={<MailSettingsPane initMailSettings={user.mailSettings} />} />}
+						<Route path="/settings" element={<MailSettingsPane initMailSettings={user.mailSettings} setMailSettings={updateMailSettings} />} />}
 				</Routes>
 			</Router>
 		</>);

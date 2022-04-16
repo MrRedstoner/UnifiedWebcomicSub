@@ -10,14 +10,15 @@ import SimpleSelect from './SimpleSelect'
 
 type Props = {
 	initMailSettings: MailSettings;
+	setMailSettings: (ms: MailSettings) => void;
 };
 
 const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-const MailSettingsPane: React.FC<Props> = ({ initMailSettings }) => {
+const MailSettingsPane: React.FC<Props> = ({ initMailSettings, setMailSettings }) => {
 	const [error, setError] = useState(null);
 	const [isLoaded, setIsLoaded] = useState(true);
-	const [mailSettings, setMailSettings] = useState<MailSettings>(initMailSettings);
+	const mailSettings = initMailSettings;
 	const [changes, setChanges] = useState<MailSettingsChange>({});
 
 	const onClick = async () => {
