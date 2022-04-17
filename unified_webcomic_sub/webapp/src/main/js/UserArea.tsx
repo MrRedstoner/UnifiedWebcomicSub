@@ -10,12 +10,15 @@ import MailSettingsPane from './components/MailSettingsPane'
 import SourcesPane from './components/SourcesPane'
 import GroupPane from './components/GroupPane'
 import { getPermissionClosure } from './api/entityFunctions';
+import PostsPane from './components/panes/PostsPane';
+import HomePane from './components/panes/HomePane';
 
 const getNav = (user: UWSUser) => {
 	const common = (<>
 		<Link to="/index">Home</Link>
 		<Link to="/sources">Sources</Link>
 		<Link to="/groups">Groups</Link>
+		<Link to="/posts">Posts</Link>
 	</>);
 	if (user === null) {
 		return (
@@ -27,9 +30,9 @@ const getNav = (user: UWSUser) => {
 	} else {
 		return (
 			<nav>
+				<Link to="/settings">Mail settings</Link>
 				<LogoutLink />
 				{common}
-				<Link to="/settings">Mail settings</Link>
 			</nav>);
 	}
 }
@@ -57,11 +60,12 @@ const UserArea: React.FC = () => {
 			<Router>
 				{getNav(user)}
 				<Routes>
-					<Route path="/index" element={<h1>Unified Webcomic Subscriber</h1>} />
+					<Route path="/index" element={<HomePane user={user} />} />
 					<Route path="/sources" element={<SourcesPane user={userPerms} />} />
 					<Route path="/groups" element={<GroupPane user={userPerms} />} />
 					{user !== null &&
 						<Route path="/settings" element={<MailSettingsPane initMailSettings={user.mailSettings} setMailSettings={updateMailSettings} />} />}
+					<Route path="/posts/*" element={<PostsPane user={userPerms} />} />
 				</Routes>
 			</Router>
 		</>);

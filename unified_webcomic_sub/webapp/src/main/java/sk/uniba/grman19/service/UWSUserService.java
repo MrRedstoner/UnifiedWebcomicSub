@@ -75,6 +75,13 @@ public class UWSUserService implements UserDetailsService {
 	/**
 	 * @throws ForbiddenException
 	 */
+	public UWSUser requireCreatePost() {
+		return getLoggedInUser().filter(PermissionCheck::canCreatePost).orElseThrow(ForbiddenException::new);
+	}
+
+	/**
+	 * @throws ForbiddenException
+	 */
 	public UWSUser requireEditSource() {
 		return getLoggedInUser().filter(PermissionCheck::canEditSource).orElseThrow(ForbiddenException::new);
 	}

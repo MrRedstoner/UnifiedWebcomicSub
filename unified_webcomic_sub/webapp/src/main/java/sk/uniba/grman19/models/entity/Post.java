@@ -26,6 +26,16 @@ public class Post extends BaseEntity {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "post")
 	private List<PollOption> options;
 
+	public Post() {
+	}
+
+	public Post(UWSUser user, String title, String content, Date created) {
+		this.user = user;
+		this.title = title;
+		this.content = content;
+		this.created = created;
+	}
+
 	public UWSUser getUser() {
 		return user;
 	}

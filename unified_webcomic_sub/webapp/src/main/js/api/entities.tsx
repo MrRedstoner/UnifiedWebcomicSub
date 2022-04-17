@@ -61,6 +61,12 @@ type UserPermissionClosure = {
 	editGroup: boolean;
 };
 
+type Post = {
+	id?: number;
+	title: string;
+	content: string;
+}
+
 export {
 	UWSUser,
 	MailSettings,
@@ -69,5 +75,6 @@ export {
 	Group,
 	GroupChild,
 	SourceSubscription,
-	UserPermissionClosure
+	UserPermissionClosure,
+	Post,
 }
