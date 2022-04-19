@@ -1,5 +1,7 @@
 package sk.uniba.grman19.rest;
 
+import java.util.List;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -33,7 +35,7 @@ public class PostRestController {
 		}
 
 		UWSUser user = userDetailsService.requireCreatePost();
-		Post updated = postService.createPost(user, post.getTitle(), post.getContent());
+		Post updated = postService.createPost(user, post.getTitle(), post.getContent(), post.getOptions());
 		return updated.getId();
 	}
 
@@ -45,6 +47,9 @@ public class PostRestController {
 		@NotNull
 		@NotEmpty
 		private String content;
+		//TODO not-null not-empty elements
+		@NotNull
+		private List<String> options;
 
 		public String getTitle() {
 			return title;
@@ -60,6 +65,14 @@ public class PostRestController {
 
 		public void setContent(String content) {
 			this.content = content;
+		}
+
+		public List<String> getOptions() {
+			return options;
+		}
+
+		public void setOptions(List<String> options) {
+			this.options = options;
 		}
 	}
 }

@@ -21,6 +21,14 @@ public class PollOption extends BaseEntity {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "option")
 	private Set<PollVote> votes;
 
+	public PollOption() {
+	}
+
+	public PollOption(Post post, String content) {
+		this.post = post;
+		this.content = content;
+	}
+
 	public Post getPost() {
 		return post;
 	}
