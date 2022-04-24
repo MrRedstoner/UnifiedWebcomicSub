@@ -5,5 +5,6 @@ public enum FilterColumn {
 	NAME,
 	DESCRIPTION,
 	USER_OWNED,
-	DAILY
+	DAILY,
+	TITLE
 }

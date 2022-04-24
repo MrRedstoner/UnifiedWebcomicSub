@@ -7,6 +7,7 @@ import static sk.uniba.grman19.processing.Constants.SIMPLE_POLL_TAG;
 import static sk.uniba.grman19.processing.Constants.SIMPLE_POLL_URL;
 import static sk.uniba.grman19.processing.Constants.SOURCE_TYPE;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.rest.MailSettingUpdate;
 import sk.uniba.grman19.models.rest.UserRegistration;
 import sk.uniba.grman19.service.MailSettingsService;
+import sk.uniba.grman19.service.PostService;
 import sk.uniba.grman19.service.UWSUserService;
 
 @Component
@@ -60,6 +62,8 @@ public class DatabaseLoader implements CommandLineRunner {
 	private MailSettingsService mailSettingsService;
 	@Autowired
 	private SeenUpdateDAO seenUpdateDao;
+	@Autowired
+	private PostService postService;
 
 	// some test data
 	@Override
@@ -141,6 +145,9 @@ public class DatabaseLoader implements CommandLineRunner {
 		SourceUpdate update = sourceUpdateDao.saveSourceUpdate(sources.get(11), "link11", old);
 		seenUpdateDao.createSeenUpdate(user3, update);
 		sourceUpdateDao.saveSourceUpdate(sources.get(11), "link12", date);
+
+		postService.createPost(user1, "Post 1", "Content 1", Arrays.asList("opt1", "opt2"));
+		postService.createPost(user1, "Post 2", "Content 2", Collections.emptyList());
 	}
 
 	private void addSourceAttrs(Source source, Map<String, String> attrs) {

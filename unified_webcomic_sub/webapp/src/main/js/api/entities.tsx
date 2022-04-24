@@ -61,10 +61,16 @@ type UserPermissionClosure = {
 	editGroup: boolean;
 };
 
+type PostOption = {
+	id: number;
+	content: string;
+}
+
 type Post = {
 	id?: number;
 	title: string;
 	content: string;
+	options?: PostOption[]
 }
 
 export {
@@ -76,5 +82,6 @@ export {
 	GroupChild,
 	SourceSubscription,
 	UserPermissionClosure,
+	PostOption,
 	Post,
 }

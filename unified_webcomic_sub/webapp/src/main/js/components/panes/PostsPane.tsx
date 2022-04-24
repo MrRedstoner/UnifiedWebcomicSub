@@ -18,7 +18,7 @@ const PostsPane: React.FC<Props> = ({ user }) => {
 		<Routes>
 			<Route path="new" element={<PostCreate user={user} />} />
 			<Route path="show">
-				<Route path=":id" element={<PostDetail />} />
+				<Route path=":id" element={<PostDetail user={user} />} />
 			</Route>
 			<Route path="/" element={<PostList user={user} />} />
 		</Routes>
