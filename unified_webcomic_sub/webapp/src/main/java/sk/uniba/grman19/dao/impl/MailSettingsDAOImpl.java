@@ -78,6 +78,26 @@ public class MailSettingsDAOImpl implements MailSettingsDAO {
 		entityManager.createQuery(cq).executeUpdate();
 	}
 
+	@Override
+	public List<MailSettings> getActiveWeeklyMail(Byte dayOfWeek, Date today) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<MailSettings> cq = cb.createQuery(MailSettings.class);
+		Root<MailSettings> root = cq.from(MailSettings.class);
+		cq.select(root);
+		cq.where(cb.isTrue(root.get(MailSettings_.weekly)), cb.equal(root.get(MailSettings_.dayOfWeek), cb.literal(dayOfWeek)), cb.greaterThan(cb.literal(today), root.get(MailSettings_.lastWeekly)));
+		return entityManager.createQuery(cq).getResultList();
+	}
+
+	@Override
+	public void updateLastWeekly(Collection<Long> usersSent, Date date) {
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaUpdate<MailSettings> cq = cb.createCriteriaUpdate(MailSettings.class);
+		Root<MailSettings> root = cq.from(MailSettings.class);
+		cq.set(MailSettings_.lastWeekly, cb.literal(date));
+		cq.where(root.get(MailSettings_.id).in(usersSent));
+		entityManager.createQuery(cq).executeUpdate();
+	}
+
 	private static FilterMapper makeFilterMapper(CriteriaBuilder cb, Root<MailSettings> root) {
 		return new FilterMapper(cb)
 			.addBooleanFilter(FilterColumn.DAILY, root.get(MailSettings_.daily));

@@ -15,4 +15,8 @@ public interface MailSettingsDAO {
 	List<MailSettings> getActiveDailyMail(Date today);
 
 	void updateLastDaily(Collection<Long> usersSent, Date date);
+
+	List<MailSettings> getActiveWeeklyMail(Byte dayOfWeek, Date today);
+
+	void updateLastWeekly(Collection<Long> usersSent, Date date);
 }

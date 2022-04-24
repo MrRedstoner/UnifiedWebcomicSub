@@ -63,6 +63,14 @@ public class MailSettingsService {
 		mailSettingsDao.updateLastDaily(getIds(usersSent), date);
 	}
 
+	public List<MailSettings> getActiveWeeklyMail(Byte dayOfWeek, Date today) {
+		return mailSettingsDao.getActiveWeeklyMail(dayOfWeek, today);
+	}
+
+	public void saveLastWeekly(List<MailSettings> usersSent, Date date) {
+		mailSettingsDao.updateLastWeekly(getIds(usersSent), date);
+	}
+
 	private <O> Function<O, O> addChange(String fieldName, List<String> list) {
 		return o -> {
 			list.add(fieldName + "=" + o.toString());

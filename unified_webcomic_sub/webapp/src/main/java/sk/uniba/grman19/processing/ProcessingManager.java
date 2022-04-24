@@ -35,4 +35,11 @@ public class ProcessingManager {
 		logger.info("Sending daily mail");
 		mailSendingService.sendDailyMail();
 	}
+
+	@Scheduled(cron = "${mail.weekly.cron:-}")
+	@Transactional(readOnly = true)
+	public void sendWeeklyMail() {
+		logger.info("Sending weekly mail");
+		mailSendingService.sendWeeklyMail();
+	}
 }

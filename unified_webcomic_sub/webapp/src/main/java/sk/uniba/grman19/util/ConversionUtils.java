@@ -15,6 +15,10 @@ public class ConversionUtils {
 	    return java.sql.Date.valueOf(date);
 	}
 
+	public static byte toDayOfWeek(LocalDate date) {
+		return (byte) (date.getDayOfWeek().getValue() - 1);
+	}
+
 	public static Map<String, String> toMap(Collection<SourceAttribute> attributes) {
 		return attributes.stream()
 			.collect(Collectors.toMap(SourceAttribute::getName, SourceAttribute::getValue));

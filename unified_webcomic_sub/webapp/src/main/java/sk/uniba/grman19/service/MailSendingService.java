@@ -1,5 +1,6 @@
 package sk.uniba.grman19.service;
 
+import static sk.uniba.grman19.util.ConversionUtils.toDayOfWeek;
 import static sk.uniba.grman19.util.ConversionUtils.toUtilDate;
 
 import java.lang.invoke.MethodHandles;
@@ -11,6 +12,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jsoup.nodes.Document;
@@ -47,14 +50,23 @@ public class MailSendingService {
 
 	@Transactional(readOnly = false)
 	public void sendDailyMail() {
-		Date today = toUtilDate(LocalDate.now());
-		List<MailSettings> users = mailSettingsService.getActiveDailyMail(today);
+		sendRegularMail("UWS Daily", ld -> mailSettingsService.getActiveDailyMail(toUtilDate(ld)), mailSettingsService::saveLastDaily);
+	}
+
+	@Transactional(readOnly = false)
+	public void sendWeeklyMail() {
+		sendRegularMail("UWS Weekly", ld -> mailSettingsService.getActiveWeeklyMail(toDayOfWeek(ld), toUtilDate(ld)), mailSettingsService::saveLastWeekly);
+	}
+
+	private void sendRegularMail(String subject, Function<LocalDate, List<MailSettings>> getUsers, BiConsumer<List<MailSettings>, Date> updateSent) {
+		LocalDate now = LocalDate.now();
+		Date today = toUtilDate(now);
+		List<MailSettings> users = getUsers.apply(now);
 		List<MailSettings> usersSent = new ArrayList<>();
 		logger.debug(users.stream().map(MailSettings::getMailAddress).collect(Collectors.joining(", ")));
 		for (MailSettings settings : users) {
 			try {
-				List<SourceUpdate> sent = sendMail(settings);
-				// TODO only update if nonempty, update last sent
+				List<SourceUpdate> sent = sendMail(settings, subject);
 				if (!sent.isEmpty()) {
 					usersSent.add(settings);
 					seenUpdateService.updateSeenUpdates(settings.getUser(), sent);
@@ -64,12 +76,12 @@ public class MailSendingService {
 			}
 		}
 		if (!usersSent.isEmpty()) {
-			mailSettingsService.saveLastDaily(usersSent, today);
+			updateSent.accept(usersSent, today);
 		}
 	}
 
 	@Transactional(readOnly = false)
-	private List<SourceUpdate> sendMail(MailSettings settings) throws Exception {
+	private List<SourceUpdate> sendMail(MailSettings settings, String subject) throws Exception {
 		List<Source> sources = sourceDao.resolveSources(settings.getSubscribe(), settings.getIgnore());
 		if (sources.isEmpty()) {
 			return Collections.emptyList();
@@ -92,7 +104,7 @@ public class MailSendingService {
 		}
 		doc.body().appendChild(table);
 
-		emailSender.sendHtmlMail(settings.getMailAddress(), "UWS Daily", doc);
+		emailSender.sendHtmlMail(settings.getMailAddress(), subject, doc);
 
 		return updates;
 	}
