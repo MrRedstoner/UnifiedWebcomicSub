@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.models.entity.Post;
@@ -17,4 +18,6 @@ public interface PostDAO {
 	long getPostCount(Map<FilterColumn, String> filters);
 
 	List<Post> getPosts(Integer offset, Integer limit, Map<FilterColumn, String> filters);
+
+	List<Post> getUnseenPosts(Long userId, Set<Long> posterIds);
 }

@@ -1,7 +1,9 @@
 package sk.uniba.grman19.dao;
 
+import java.util.List;
 import java.util.Optional;
 
+import sk.uniba.grman19.models.entity.SubGroup;
 import sk.uniba.grman19.models.entity.UWSUser;
 
 public interface UWSUserDAO {
@@ -12,4 +14,6 @@ public interface UWSUserDAO {
 	UWSUser createUWSUser(UWSUser user);
 
 	UWSUser saveUWSUser(UWSUser user);
+
+	List<UWSUser> resolvePosters(SubGroup subscribe, SubGroup ignore);
 }

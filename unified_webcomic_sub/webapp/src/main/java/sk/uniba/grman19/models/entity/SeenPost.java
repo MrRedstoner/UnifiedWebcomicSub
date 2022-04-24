@@ -17,6 +17,14 @@ public class SeenPost extends BaseEntity {
 	@JoinColumn(name = "post_id")
 	private Post post;
 
+	public SeenPost() {
+	}
+
+	public SeenPost(UWSUser user, Post post) {
+		this.user = user;
+		this.post = post;
+	}
+
 	public UWSUser getUser() {
 		return user;
 	}

@@ -129,6 +129,7 @@ public class DatabaseLoader implements CommandLineRunner {
 		subscribe(user1, sources.get(11));
 		subscribe(user2, sources.get(10));
 		subscribe(user2, sources.get(11));
+		subscribe(user1, user2);
 		// user3: direct and indirect subs
 		subscribe(user3, groups.get(0));
 		ignore(user3, sources.get(4));
@@ -146,8 +147,8 @@ public class DatabaseLoader implements CommandLineRunner {
 		seenUpdateDao.createSeenUpdate(user3, update);
 		sourceUpdateDao.saveSourceUpdate(sources.get(11), "link12", date);
 
-		postService.createPost(user1, "Post 1", "Content 1", Arrays.asList("opt1", "opt2"));
-		postService.createPost(user1, "Post 2", "Content 2", Collections.emptyList());
+		postService.createPost(user2, "Post 1", "Content 1", Arrays.asList("opt1", "opt2"));
+		postService.createPost(user2, "Post 2", "Content 2", Collections.emptyList());
 	}
 
 	private void addSourceAttrs(Source source, Map<String, String> attrs) {
@@ -168,6 +169,13 @@ public class DatabaseLoader implements CommandLineRunner {
 			.get()
 			.getMailSettings();
 		subscriptionDao.addSourceSubscription(ms.getSubscribe(), source);
+	}
+
+	private void subscribe(UWSUser uuser, UWSUser poster) {
+		MailSettings ms = userDao.getUser(uuser.getId())
+			.get()
+			.getMailSettings();
+		subscriptionDao.addPosterSubscription(ms.getSubscribe(), poster);
 	}
 
 	private void ignore(UWSUser uuser, Source source) {

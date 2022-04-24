@@ -106,7 +106,6 @@ public class SourceDAOImpl implements SourceDAO {
 
 	@Override
 	public List<Source> resolveSources(SubGroup subscribe, SubGroup ignore) {
-		// TODO implement ignore
 		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Source> cq = cb.createQuery(Source.class).distinct(true);
 		Root<GroupChildStar> root = cq.from(GroupChildStar.class);
