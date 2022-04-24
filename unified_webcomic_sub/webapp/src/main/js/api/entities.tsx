@@ -1,6 +1,7 @@
 'use strict';
 
 type UWSUser = {
+	id: number;
 	name: string;
 	mailSettings: MailSettings;
 	owner: boolean;
@@ -40,6 +41,7 @@ type Group = {
 	subscribed?: boolean;
 	children?: GroupChild[];
 	sources?: SourceSubscription[];
+	posters?: PostSubscription[];
 }
 
 type GroupChild = {
@@ -49,6 +51,11 @@ type GroupChild = {
 type SourceSubscription = {
 	group: Group;
 	source: Source;
+}
+
+type PostSubscription = {
+	group: Group;
+	user: UWSUser;
 }
 
 type UserPermissionClosure = {
@@ -81,6 +88,7 @@ export {
 	Group,
 	GroupChild,
 	SourceSubscription,
+	PostSubscription,
 	UserPermissionClosure,
 	PostOption,
 	Post,

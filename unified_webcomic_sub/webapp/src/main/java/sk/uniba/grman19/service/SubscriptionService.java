@@ -55,6 +55,15 @@ public class SubscriptionService {
 		}
 	}
 
+	public void updateGroupSubscription(UWSUser user, SubGroup group, UWSUser poster, boolean value) {
+		auditLogDao.saveLog(user, "Updated group " + group.getId() + " poster " + poster.getId() + " to " + value);
+		if (value) {
+			subscriptionDao.addPosterSubscription(group, poster);
+		} else {
+			subscriptionDao.removePosterSubscription(group, poster);
+		}
+	}
+
 	@Transactional(readOnly = false)
 	public void updateSubscription(UWSUser user, Source source, boolean value, boolean subscribe) {
 		SubGroup group;

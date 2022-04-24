@@ -26,6 +26,7 @@ public class SubGroup extends BaseEntity {
 	@JsonProperty("sources")
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
 	private List<SourceSubscription> sourceSubs;
+	@JsonProperty("posters")
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "group")
 	private List<PostSubscription> postSubs;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "child")

@@ -16,6 +16,14 @@ public class PostSubscription extends BaseEntity {
 	@JoinColumn(name = "uid")
 	private UWSUser user;
 
+	public PostSubscription() {
+	}
+
+	public PostSubscription(SubGroup group, UWSUser user) {
+		this.group = group;
+		this.user = user;
+	}
+
 	public SubGroup getGroup() {
 		return group;
 	}

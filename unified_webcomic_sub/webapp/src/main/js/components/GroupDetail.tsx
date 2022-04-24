@@ -1,10 +1,10 @@
 'use strict';
 
 import React, { useState, useEffect } from 'react';
-import { UserPermissionClosure, Group, GroupChild, SourceSubscription } from '../api/entities';
+import { UserPermissionClosure, Group, GroupChild, SourceSubscription, PostSubscription } from '../api/entities';
 import InputBox from './InputBox';
 import { asyncFetchGet, asyncFetchPost } from '../api/apiCall';
-import { GROUP_SERVICE_READ_DETAIL, GROUP_SERVICE_SAVE_DETAIL, GROUP_SERVICE_UPDATE_SUBSCRIBE, GROUP_SERVICE_UPDATE_CHILDREN, GROUP_SERVICE_UPDATE_SOURCES } from '../api/apiEndpoints';
+import { GROUP_SERVICE_READ_DETAIL, GROUP_SERVICE_SAVE_DETAIL, GROUP_SERVICE_UPDATE_SUBSCRIBE, GROUP_SERVICE_UPDATE_CHILDREN, GROUP_SERVICE_UPDATE_SOURCES, GROUP_SERVICE_UPDATE_POSTERS } from '../api/apiEndpoints';
 
 const makeSubButton = (user: UserPermissionClosure, group: Group, updateSub: (value: string) => void) => {
 	if (!group.subscribed) {
@@ -52,6 +52,27 @@ const GroupSourcesView: React.FC<SourcesProps> = ({ canEdit, sources, updateSour
 			<p>Sources: {childIds.join(", ")}</p>
 			<InputBox label="Id" initialValue={childId} setValue={setChildId} />
 			<button disabled={childId === ""} onClick={async () => { updateSources(childId, (!contains).toString()) }}>{contains ? "Remove" : "Add"}</button>
+		</>);
+	}
+}
+
+type PostersProps = {
+	canEdit: boolean
+	posters: PostSubscription[];
+	updatePosters?: (source_id: string, value: string) => void;
+}
+
+const GroupPostersView: React.FC<PostersProps> = ({ canEdit, posters, updatePosters }) => {
+	const childIds = posters.map((gc) => gc.user.id.toString());
+	if (!canEdit) {
+		return (<p>Sources: {childIds.join(", ")}</p>);
+	} else {
+		const [childId, setChildId] = useState<string>("")
+		const contains = childIds.includes(childId);
+		return (<>
+			<p>Posters: {childIds.join(", ")}</p>
+			<InputBox label="Id" initialValue={childId} setValue={setChildId} />
+			<button disabled={childId === ""} onClick={async () => { updatePosters(childId, (!contains).toString()) }}>{contains ? "Remove" : "Add"}</button>
 		</>);
 	}
 }
@@ -133,6 +154,17 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 			await asyncFetchPost(GROUP_SERVICE_UPDATE_SOURCES, data, setGroup, setError, setIsLoaded);
 		}
 
+		const updatePosters = async (user_id: string, value: string) => {
+			setIsLoaded(false);
+			setError(null);
+			const data = {
+				id: id.toString(),
+				user: user_id,
+				value: value
+			};
+			await asyncFetchPost(GROUP_SERVICE_UPDATE_POSTERS, data, setGroup, setError, setIsLoaded);
+		}
+
 		const updateSub = async (value: string) => {
 			setIsLoaded(false);
 			setError(null);
@@ -157,6 +189,7 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 					{subButton}
 					<GroupChildrenView canEdit={true} children={group.children} updateChildren={updateChildren} />
 					<GroupSourcesView canEdit={true} sources={group.sources} updateSources={updateSources} />
+					<GroupPostersView canEdit={true} posters={group.posters} updatePosters={updatePosters} />
 				</>
 			);
 		} else {
@@ -168,6 +201,7 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 					{subButton}
 					<GroupChildrenView canEdit={false} children={group.children} />
 					<GroupSourcesView canEdit={false} sources={group.sources} />
+					<GroupPostersView canEdit={false} posters={group.posters} />
 				</>
 			);
 		}

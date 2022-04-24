@@ -22,6 +22,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 
 import sk.uniba.grman19.dao.SourceDAO;
 import sk.uniba.grman19.dao.SubGroupDAO;
+import sk.uniba.grman19.dao.UWSUserDAO;
 import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.models.PaginatedList;
 import sk.uniba.grman19.models.entity.GroupChild;
@@ -40,7 +41,7 @@ import sk.uniba.grman19.util.NotFoundException;
 @RequestMapping("/rest/group")
 public class SubGroupRestController {
 	private static Function<PaginatedList<SubGroup>, PaginatedList<SubGroup>> GROUPS = Cloner.clonePaginated();
-	private static Function<SubGroup, SubGroup> GROUP = Cloner.clone("children.child", "sourceSubs.source");
+	private static Function<SubGroup, SubGroup> GROUP = Cloner.clone("children.child", "sourceSubs.source", "postSubs.user");
 
 	@Autowired
 	private SubGroupService subGroupService;
@@ -52,6 +53,8 @@ public class SubGroupRestController {
 	private SubGroupDAO subGroupDao;
 	@Autowired
 	private SourceDAO sourceDao;
+	@Autowired
+	private UWSUserDAO userDao;
 
 	@RequestMapping(method = RequestMethod.GET, path = "/read", produces = MediaType.APPLICATION_JSON_VALUE)
 	public PaginatedList<SubGroup> read(@RequestParam(name = "id") Optional<String> filterId, @RequestParam(name = "name") Optional<String> filterName,
@@ -140,6 +143,19 @@ public class SubGroupRestController {
 		return readDetail(Optional.of(user), update.getId());
 	}
 
+	@RequestMapping(method = RequestMethod.POST, path = "/updatePoster", produces = MediaType.APPLICATION_JSON_VALUE)
+	public SubGroup updateGroupPoster(@RequestBody @Valid GroupChildUpdate update, BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) {
+			throw new BadRequestException(bindingResult);
+		}
+		UWSUser user = userDetailsService.requireEditGroup();
+		SubGroup group = subGroupDao.getNonUserGroup(update.getId()).orElseThrow(NotFoundException::new);
+		UWSUser poster = userDao.getUser(update.getChild()).orElseThrow(NotFoundException::new);
+		subscriptionService.updateGroupSubscription(user, group, poster, update.getValue());
+
+		return readDetail(Optional.of(user), update.getId());
+	}
+
 	private SubGroup readDetail(Optional<UWSUser> user, Long id) {
 		return subGroupDao.getNonUserGroup(id)
 			.map(g -> setDirectSub(g, user))
@@ -182,7 +198,7 @@ public class SubGroupRestController {
 		@NotNull
 		private Long id;
 		@NotNull
-		@JsonAlias("source")
+		@JsonAlias({ "source", "user" })
 		private Long child;
 		@NotNull
 		private Boolean value;

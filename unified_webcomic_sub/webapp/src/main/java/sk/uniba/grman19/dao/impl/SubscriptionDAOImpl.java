@@ -21,10 +21,13 @@ import org.springframework.transaction.annotation.Transactional;
 import sk.uniba.grman19.dao.SubscriptionDAO;
 import sk.uniba.grman19.models.entity.GroupChild;
 import sk.uniba.grman19.models.entity.GroupChild_;
+import sk.uniba.grman19.models.entity.PostSubscription;
+import sk.uniba.grman19.models.entity.PostSubscription_;
 import sk.uniba.grman19.models.entity.Source;
 import sk.uniba.grman19.models.entity.SourceSubscription;
 import sk.uniba.grman19.models.entity.SourceSubscription_;
 import sk.uniba.grman19.models.entity.SubGroup;
+import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.util.query.SimpleQuery;
 
 @Component
@@ -39,6 +42,9 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
 	@Autowired
 	@Qualifier("subscriptionQuerySourceByIds")
 	private SimpleQuery<SourceSubscription, Pair<Long, Long>> querySourceByIds;
+	@Autowired
+	@Qualifier("subscriptionQueryPosterByIds")
+	private SimpleQuery<PostSubscription, Pair<Long, Long>> queryPosterByIds;
 
 	@Override
 	@Transactional(readOnly = false)
@@ -86,6 +92,29 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
 		querySourceByIds.executeDelete(Pair.with(group.getId(), source.getId()));
 	}
 
+	@Override
+	public Optional<PostSubscription> getPostSubscription(SubGroup group, UWSUser poster) {
+		return queryPosterByIds.querySingle(Pair.with(group.getId(), poster.getId()));
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public PostSubscription addPosterSubscription(SubGroup group, UWSUser poster) {
+		Optional<PostSubscription> postSubscription = getPostSubscription(group, poster);
+		if (postSubscription.isPresent()) {
+			return postSubscription.get();
+		}
+		PostSubscription newSub = new PostSubscription(group, poster);
+		entityManager.persist(newSub);
+		return newSub;
+	}
+
+	@Override
+	@Transactional(readOnly = false)
+	public void removePosterSubscription(SubGroup group, UWSUser poster) {
+		queryPosterByIds.executeDelete(Pair.with(group.getId(), poster.getId()));
+	}
+
 	private static Predicate parentIdEqual(CriteriaBuilder cb, Root<GroupChild> root, Long parentId) {
 		return cb.equal(root.get(GroupChild_.parent), cb.literal(parentId));
 	}
@@ -94,12 +123,20 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
 		return cb.equal(root.get(GroupChild_.child), cb.literal(childId));
 	}
 
-	private static Predicate groupIdEqual(CriteriaBuilder cb, Root<SourceSubscription> root, Long parentId) {
+	private static Predicate groupIdEqualSource(CriteriaBuilder cb, Root<SourceSubscription> root, Long parentId) {
 		return cb.equal(root.get(SourceSubscription_.group), cb.literal(parentId));
+	}
+
+	private static Predicate groupIdEqualPost(CriteriaBuilder cb, Root<PostSubscription> root, Long parentId) {
+		return cb.equal(root.get(PostSubscription_.group), cb.literal(parentId));
 	}
 
 	private static Predicate sourceIdEqual(CriteriaBuilder cb, Root<SourceSubscription> root, Long childId) {
 		return cb.equal(root.get(SourceSubscription_.source), cb.literal(childId));
+	}
+
+	private static Predicate posterIdEqual(CriteriaBuilder cb, Root<PostSubscription> root, Long childId) {
+		return cb.equal(root.get(PostSubscription_.user), cb.literal(childId));
 	}
 
 	@Configuration
@@ -113,8 +150,15 @@ public class SubscriptionDAOImpl implements SubscriptionDAO {
 		@Bean(name = "subscriptionQuerySourceByIds")
 		@PersistenceContext
 		SimpleQuery<SourceSubscription, Pair<Long, Long>> querySourceByIds(EntityManager entityManager) {
-			return new SimpleQuery<>(entityManager, SourceSubscription.class, mapLast(Pair::getValue0, SubscriptionDAOImpl::groupIdEqual),
+			return new SimpleQuery<>(entityManager, SourceSubscription.class, mapLast(Pair::getValue0, SubscriptionDAOImpl::groupIdEqualSource),
 					mapLast(Pair::getValue1, SubscriptionDAOImpl::sourceIdEqual));
+		}
+
+		@Bean(name = "subscriptionQueryPosterByIds")
+		@PersistenceContext
+		SimpleQuery<PostSubscription, Pair<Long, Long>> queryPosterByIds(EntityManager entityManager) {
+			return new SimpleQuery<>(entityManager, PostSubscription.class, mapLast(Pair::getValue0, SubscriptionDAOImpl::groupIdEqualPost),
+					mapLast(Pair::getValue1, SubscriptionDAOImpl::posterIdEqual));
 		}
 	}
 }
