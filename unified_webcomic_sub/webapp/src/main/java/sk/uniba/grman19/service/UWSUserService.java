@@ -1,8 +1,10 @@
 package sk.uniba.grman19.service;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -21,7 +23,10 @@ import sk.uniba.grman19.dao.UWSUserDAO;
 import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.models.MyUserDetails;
 import sk.uniba.grman19.models.PaginatedList;
+import sk.uniba.grman19.models.entity.MailSettings;
 import sk.uniba.grman19.models.entity.UWSUser;
+import sk.uniba.grman19.models.rest.MailSettingUpdate;
+import sk.uniba.grman19.models.rest.PermissionUpdate;
 import sk.uniba.grman19.models.rest.UserRegistration;
 import sk.uniba.grman19.util.ForbiddenException;
 import sk.uniba.grman19.util.PermissionCheck;
@@ -90,6 +95,20 @@ public class UWSUserService implements UserDetailsService {
 		return getLoggedInUser().filter(PermissionCheck::canEditSource).orElseThrow(ForbiddenException::new);
 	}
 
+	/**
+	 * @throws ForbiddenException
+	 */
+	public UWSUser requireAdmin() {
+		return getLoggedInUser().filter(PermissionCheck::isAdmin).orElseThrow(ForbiddenException::new);
+	}
+
+	/**
+	 * @throws ForbiddenException
+	 */
+	public UWSUser requireOwner() {
+		return getLoggedInUser().filter(PermissionCheck::isOwner).orElseThrow(ForbiddenException::new);
+	}
+
 	@Transactional(readOnly = false)
 	public UWSUser registerUser(UserRegistration user) {
 		UWSUser uuser = new UWSUser(user.getUsername(), passwordEncoder.encode(user.getPassword()));
@@ -103,5 +122,39 @@ public class UWSUserService implements UserDetailsService {
 		long count = userDao.getUserCount(filters);
 		List<UWSUser> items = userDao.getUsers(offset, limit, filters);
 		return new PaginatedList<>(count, items);
+	}
+
+	@Transactional(readOnly = false)
+	public void updatePermissions(UWSUser user, UWSUser editing, PermissionUpdate update) {
+		editing = userDao.getUser(editing.getId()).get();
+
+		Optional<PermissionUpdate> omsu = Optional.of(update);
+		List<String> changes = new LinkedList<>();
+
+		omsu.map(PermissionUpdate::getAdmin)
+			.map(addChange("admin", changes))
+			.ifPresent(editing::setAdmin);
+		omsu.map(PermissionUpdate::getCreatePost)
+			.map(addChange("createPost", changes))
+			.ifPresent(editing::setCreatePost);
+		omsu.map(PermissionUpdate::getCreateSource)
+			.map(addChange("createSource", changes))
+			.ifPresent(editing::setCreateSource);
+		omsu.map(PermissionUpdate::getEditSource)
+			.map(addChange("editSource", changes))
+			.ifPresent(editing::setEditSource);
+		omsu.map(PermissionUpdate::getEditGroup)
+			.map(addChange("editGroup", changes))
+			.ifPresent(editing::setEditGroup);
+
+		auditLogDao.saveLog(user, "Updated permission of " + editing.getId() + " by " + changes.toString());
+		userDao.saveUWSUser(editing);
+	}
+
+	private <O> Function<O, O> addChange(String fieldName, List<String> list) {
+		return o -> {
+			list.add(fieldName + "=" + o.toString());
+			return o;
+		};
 	}
 }

@@ -22,6 +22,7 @@ import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.models.PaginatedList;
 import sk.uniba.grman19.models.entity.PostSubscription;
 import sk.uniba.grman19.models.entity.UWSUser;
+import sk.uniba.grman19.models.rest.PermissionUpdate;
 import sk.uniba.grman19.service.SubscriptionService;
 import sk.uniba.grman19.service.UWSUserService;
 import sk.uniba.grman19.util.BadRequestException;
@@ -34,6 +35,7 @@ public class UserRestController {
 	private static Function<PaginatedList<UWSUser>, PaginatedList<UWSUser>> USERS = Cloner.clonePaginated();
 	private static Function<UWSUser, UWSUser> WITH_MAIL_SETTINGS = Cloner.clone("mailSettings");
 	private static Function<UWSUser, UWSUser> MODERATOR = Cloner.clone();
+	private static Function<UWSUser, UWSUser> USER = Cloner.clone();
 
 	@Autowired
 	private UWSUserDAO userDao;
@@ -46,6 +48,25 @@ public class UserRestController {
 	public Optional<UWSUser> getLoggedInUser() {
 		Optional<UWSUser> ouser = userDetailsService.getLoggedInUser();
 		return ouser.map(WITH_MAIL_SETTINGS);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, path = "/readUsers", produces = MediaType.APPLICATION_JSON_VALUE)
+	public PaginatedList<UWSUser> readUsers(@RequestParam(name = "id") Optional<String> filterId, @RequestParam(name = "name") Optional<String> filterName,
+			@RequestParam(name = "offset", defaultValue = "0") Integer offset,
+			@RequestParam(name = "limit", defaultValue = "-1") Integer limit) {
+		if (limit == -1) {
+			limit = Integer.MAX_VALUE;
+		}
+
+		userDetailsService.requireAdmin();
+
+		Map<FilterColumn, String> filters = new EnumMap<FilterColumn, String>(FilterColumn.class);
+		filterId.ifPresent(s -> filters.put(FilterColumn.ID, s));
+		filterName.ifPresent(s -> filters.put(FilterColumn.NAME, s));
+		
+		PaginatedList<UWSUser> users = userDetailsService.getUsers(offset, limit, filters);
+
+		return USERS.apply(users);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, path = "/readMods", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -63,6 +84,32 @@ public class UserRestController {
 		PaginatedList<UWSUser> users = userDetailsService.getUsers(offset, limit, filters);
 
 		return USERS.apply(users);
+	}
+
+	@RequestMapping(method = RequestMethod.GET, path = "/readUserDetail", produces = MediaType.APPLICATION_JSON_VALUE)
+	public UWSUser readDetail(@RequestParam(name = "id") Long id) {
+		userDetailsService.requireAdmin();
+		return userDao.getUser(id)
+			.map(USER)
+			.orElseThrow(NotFoundException::new);
+	}
+
+	@RequestMapping(method = RequestMethod.POST, path = "/updatePerms", produces = MediaType.APPLICATION_JSON_VALUE)
+	public UWSUser updatePermissions(@RequestBody @Valid PermissionUpdate update, BindingResult bindingResult) {
+		if (bindingResult.hasErrors()) {
+			throw new BadRequestException(bindingResult);
+		}
+		UWSUser user;
+		if (update.getAdmin() != null) {
+			user = userDetailsService.requireOwner();
+		} else {
+			user = userDetailsService.requireAdmin();
+		}
+		UWSUser editing = userDao.getUser(update.getId()).orElseThrow(NotFoundException::new);
+		userDetailsService.updatePermissions(user, editing, update);
+		return userDao.getUser(update.getId())
+			.map(USER)
+			.orElseThrow(NotFoundException::new);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, path = "/readModDetail", produces = MediaType.APPLICATION_JSON_VALUE)

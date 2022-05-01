@@ -13,6 +13,7 @@ import { getPermissionClosure } from './api/entityFunctions';
 import PostsPane from './components/panes/PostsPane';
 import HomePane from './components/panes/HomePane';
 import ModeratorsPane from './components/panes/ModeratorsPane';
+import UserRightsPane from './components/panes/UserRightsPane';
 
 const getNav = (user: UWSUser) => {
 	const common = (<>
@@ -35,6 +36,8 @@ const getNav = (user: UWSUser) => {
 				<Link to="/settings">Mail settings</Link>
 				<LogoutLink />
 				{common}
+				{(user.admin || user.owner) && 
+					<Link to="/users">User rights</Link>}
 			</nav>);
 	}
 }
@@ -69,6 +72,8 @@ const UserArea: React.FC = () => {
 						<Route path="/settings" element={<MailSettingsPane initMailSettings={user.mailSettings} setMailSettings={updateMailSettings} />} />}
 					<Route path="/posts/*" element={<PostsPane user={userPerms} />} />
 					<Route path="/mods/*" element={<ModeratorsPane user={userPerms} />} />
+					{user !== null && userPerms.admin &&
+						<Route path="/users/*" element={<UserRightsPane user={userPerms} />} />}
 				</Routes>
 			</Router>
 		</>);

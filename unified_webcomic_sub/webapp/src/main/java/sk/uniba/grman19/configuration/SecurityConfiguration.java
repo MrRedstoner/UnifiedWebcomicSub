@@ -55,7 +55,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				.anonymous()
 			.antMatchers("/built/**", "/main.css", "/favicon.ico")
 				.permitAll()
-			.antMatchers("/index", "/sources", "/groups", "/posts/**", "/mods/**", "/rest/user/**", "/rest/source/**", "/rest/group/**", "/rest/post/**")
+			.antMatchers("/index", "/sources", "/groups", "/posts/**", "/mods/**", "/users/**", "/rest/user/**", "/rest/source/**", "/rest/group/**", "/rest/post/**")
 				.permitAll()// TODO set up nicely
 			.anyRequest()
 				.authenticated()
