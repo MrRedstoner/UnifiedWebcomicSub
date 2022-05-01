@@ -46,6 +46,23 @@ const asyncFetchGet = async (endpoint: string, data: Record<string, string>, set
 	}
 }
 
+const asyncFetchGetState = async (endpoint: string, data: Record<string, string>, setItem: (item: Object) => void, setError: (error: any) => void) => {
+	endpoint += '?' + (new URLSearchParams(data)).toString();
+	const response = await fetch(endpoint, {
+		method: "GET",
+		headers: new Headers({
+			'Accept': 'application/json'
+		}),
+	});
+	if (!response.ok) {
+		const err = await response.json();
+		setError(err.message);
+	} else {
+		const data = await response.json();
+		setItem(data);
+	}
+}
+
 const asyncFetchPost = async (endpoint: string, data: Object, setItem: (item: Object) => void, setError: (error: any) => void, setIsLoaded: (loaded: boolean) => void) => {
 	const response = await fetch(endpoint, {
 		method: "POST",
@@ -66,4 +83,21 @@ const asyncFetchPost = async (endpoint: string, data: Object, setItem: (item: Ob
 	}
 }
 
-export { fetchGetEffect, asyncFetchPost, asyncFetchGet };
+const asyncFetchPostState = async (endpoint: string, data: Record<string, string>, setItem: (item: Object) => void, setError: (error: any) => void) => {
+	const response = await fetch(endpoint, {
+		method: "POST",
+		headers: new Headers({
+			'Content-Type': 'application/json',
+			'Accept': 'application/json'
+		}),
+		body: JSON.stringify(data)
+	});
+	if (!response.ok) {
+		const err = await response.json();
+		setError(err.message);
+	} else {
+		const data = await response.json();
+		setItem(data);
+	}
+}
+export { fetchGetEffect, asyncFetchPost, asyncFetchGet, asyncFetchGetState, asyncFetchPostState };

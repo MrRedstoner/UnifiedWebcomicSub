@@ -1,6 +1,7 @@
 package sk.uniba.grman19.dao.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.persistence.EntityManager;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import sk.uniba.grman19.dao.UWSUserDAO;
+import sk.uniba.grman19.filter.FilterColumn;
+import sk.uniba.grman19.filter.FilterMapper;
 import sk.uniba.grman19.models.entity.GroupChildStar;
 import sk.uniba.grman19.models.entity.GroupChildStar_;
 import sk.uniba.grman19.models.entity.PostSubscription;
@@ -32,6 +35,7 @@ import sk.uniba.grman19.models.entity.SubGroup;
 import sk.uniba.grman19.models.entity.SubGroup_;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.entity.UWSUser_;
+import sk.uniba.grman19.util.query.FilterMapperQuery;
 import sk.uniba.grman19.util.query.SimpleQuery;
 
 @Component
@@ -43,6 +47,9 @@ public class UWSUserDAOImpl implements UWSUserDAO {
 	@Autowired
 	@Qualifier("userQueryByName")
 	private SimpleQuery<UWSUser, String> queryByName;
+	@Autowired
+	@Qualifier("userQueryByFilter")
+	private FilterMapperQuery<UWSUser> queryByFilter;
 
 	@Override
 	public Optional<UWSUser> getUser(Long id) {
@@ -52,6 +59,16 @@ public class UWSUserDAOImpl implements UWSUserDAO {
 	@Override
 	public Optional<UWSUser> getUser(String name) {
 		return queryByName.querySingle(name);
+	}
+
+	@Override
+	public long getUserCount(Map<FilterColumn, String> filters) {
+		return queryByFilter.queryCount(filters);
+	}
+
+	@Override
+	public List<UWSUser> getUsers(Integer offset, Integer limit, Map<FilterColumn, String> filters) {
+		return queryByFilter.queryList(offset, limit, filters);
 	}
 
 	@Override
@@ -93,12 +110,25 @@ public class UWSUserDAOImpl implements UWSUserDAO {
 		return cb.equal(root.get(UWSUser_.name), cb.literal(name));
 	}
 
+	private static FilterMapper makeFilterMapper(CriteriaBuilder cb, Root<UWSUser> root) {
+		return new FilterMapper(cb)
+			.addNumberFilter(FilterColumn.ID, root.get(UWSUser_.id))
+			.addStringFilter(FilterColumn.NAME, root.get(UWSUser_.name))
+			.addBooleanFilter(FilterColumn.CAN_CREATE_POST, cb.or(cb.isTrue(root.get(UWSUser_.createPost)), cb.isTrue(root.get(UWSUser_.admin)), cb.isTrue(root.get(UWSUser_.owner))));
+	}
+
 	@Configuration
 	static class Config {
 		@Bean(name = "userQueryByName")
 		@PersistenceContext
 		SimpleQuery<UWSUser, String> queryByName(EntityManager entityManager) {
 			return new SimpleQuery<>(entityManager, UWSUser.class, UWSUserDAOImpl::nameEqual);
+		}
+
+		@Bean(name = "userQueryByFilter")
+		@PersistenceContext
+		FilterMapperQuery<UWSUser> queryByFilter(EntityManager entityManager) {
+			return new FilterMapperQuery<>(entityManager, UWSUser.class, UWSUserDAOImpl::makeFilterMapper);
 		}
 	}
 }

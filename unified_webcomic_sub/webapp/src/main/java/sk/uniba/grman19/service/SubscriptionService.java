@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import sk.uniba.grman19.dao.AuditLogDAO;
 import sk.uniba.grman19.dao.SubscriptionDAO;
 import sk.uniba.grman19.models.entity.GroupChild;
+import sk.uniba.grman19.models.entity.PostSubscription;
 import sk.uniba.grman19.models.entity.Source;
 import sk.uniba.grman19.models.entity.SourceSubscription;
 import sk.uniba.grman19.models.entity.SubGroup;
@@ -87,5 +88,29 @@ public class SubscriptionService {
 
 	public Optional<SourceSubscription> getDirectIgnore(UWSUser user, Source source) {
 		return subscriptionDao.getSourceSubscription(user.getMailSettings().getIgnore(), source);
+	}
+
+	public Optional<PostSubscription> getDirectSubscription(UWSUser user, UWSUser moderator) {
+		return subscriptionDao.getPostSubscription(user.getMailSettings().getSubscribe(), moderator);
+	}
+
+	public Optional<PostSubscription> getDirectIgnore(UWSUser user, UWSUser moderator) {
+		return subscriptionDao.getPostSubscription(user.getMailSettings().getIgnore(), moderator);
+	}
+
+	public void updateSubscription(UWSUser user, UWSUser moderator, Boolean value, Boolean subscribe) {
+		SubGroup group;
+		if (subscribe) {
+			auditLogDao.saveLog(user, "Updated subscription to moderator " + moderator.getId() + " to " + value);
+			group = user.getMailSettings().getSubscribe();
+		} else {
+			auditLogDao.saveLog(user, "Updated ignore to moderator " + moderator.getId() + " to " + value);
+			group = user.getMailSettings().getIgnore();
+		}
+		if (value) {
+			subscriptionDao.addPosterSubscription(group, moderator);
+		} else {
+			subscriptionDao.removePosterSubscription(group, moderator);
+		}
 	}
 }

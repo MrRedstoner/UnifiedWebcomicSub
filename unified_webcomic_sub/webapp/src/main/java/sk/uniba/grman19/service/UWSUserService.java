@@ -1,5 +1,7 @@
 package sk.uniba.grman19.service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import sk.uniba.grman19.dao.AuditLogDAO;
 import sk.uniba.grman19.dao.MailSettingsDAO;
 import sk.uniba.grman19.dao.UWSUserDAO;
+import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.models.MyUserDetails;
+import sk.uniba.grman19.models.PaginatedList;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.models.rest.UserRegistration;
 import sk.uniba.grman19.util.ForbiddenException;
@@ -93,5 +97,11 @@ public class UWSUserService implements UserDetailsService {
 		mailSettingsDao.createMailSettings(uuser, user.getEmail());
 		auditLogDao.saveLog(uuser, "Created user");
 		return uuser;
+	}
+
+	public PaginatedList<UWSUser> getUsers(Integer offset, Integer limit, Map<FilterColumn, String> filters) {
+		long count = userDao.getUserCount(filters);
+		List<UWSUser> items = userDao.getUsers(offset, limit, filters);
+		return new PaginatedList<>(count, items);
 	}
 }

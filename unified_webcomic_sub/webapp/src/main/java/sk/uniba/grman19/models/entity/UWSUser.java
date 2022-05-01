@@ -8,8 +8,11 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Entity(name = "uws_user")
 public class UWSUser extends BaseEntity {
@@ -40,6 +43,12 @@ public class UWSUser extends BaseEntity {
 	private Set<PollVote> votes;
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private Set<SeenUpdate> seenUpdates;
+	@Transient
+	@JsonInclude(Include.NON_NULL)
+	private Boolean subscribed;
+	@Transient
+	@JsonInclude(Include.NON_NULL)
+	private Boolean ignored;
 
 	public UWSUser() {
 	}
@@ -161,5 +170,21 @@ public class UWSUser extends BaseEntity {
 
 	public void setSeenUpdates(Set<SeenUpdate> seenUpdates) {
 		this.seenUpdates = seenUpdates;
+	}
+
+	public Boolean getSubscribed() {
+		return subscribed;
+	}
+
+	public void setSubscribed(Boolean subscribed) {
+		this.subscribed = subscribed;
+	}
+
+	public Boolean getIgnored() {
+		return ignored;
+	}
+
+	public void setIgnored(Boolean ignored) {
+		this.ignored = ignored;
 	}
 }

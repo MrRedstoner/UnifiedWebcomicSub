@@ -12,8 +12,6 @@ type Props = {
 }
 
 const PostsPane: React.FC<Props> = ({ user }) => {
-	//TODO: create, view, list
-
 	return (<><h2>Posts</h2>
 		<Routes>
 			<Route path="new" element={<PostCreate user={user} />} />

@@ -12,6 +12,7 @@ import GroupPane from './components/GroupPane'
 import { getPermissionClosure } from './api/entityFunctions';
 import PostsPane from './components/panes/PostsPane';
 import HomePane from './components/panes/HomePane';
+import ModeratorsPane from './components/panes/ModeratorsPane';
 
 const getNav = (user: UWSUser) => {
 	const common = (<>
@@ -19,6 +20,7 @@ const getNav = (user: UWSUser) => {
 		<Link to="/sources">Sources</Link>
 		<Link to="/groups">Groups</Link>
 		<Link to="/posts">Posts</Link>
+		<Link to="/mods">Moderators</Link>
 	</>);
 	if (user === null) {
 		return (
@@ -66,6 +68,7 @@ const UserArea: React.FC = () => {
 					{user !== null &&
 						<Route path="/settings" element={<MailSettingsPane initMailSettings={user.mailSettings} setMailSettings={updateMailSettings} />} />}
 					<Route path="/posts/*" element={<PostsPane user={userPerms} />} />
+					<Route path="/mods/*" element={<ModeratorsPane user={userPerms} />} />
 				</Routes>
 			</Router>
 		</>);

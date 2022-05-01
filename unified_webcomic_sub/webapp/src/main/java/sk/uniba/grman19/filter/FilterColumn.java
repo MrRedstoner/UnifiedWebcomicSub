@@ -6,5 +6,6 @@ public enum FilterColumn {
 	DESCRIPTION,
 	USER_OWNED,
 	DAILY,
-	TITLE
+	TITLE,
+	CAN_CREATE_POST
 }

@@ -10,6 +10,8 @@ type UWSUser = {
 	createSource: boolean;
 	editSource: boolean;
 	editGroup: boolean;
+	subscribed?: boolean;
+	ignored?: boolean;
 };
 
 type MailSettings = {
