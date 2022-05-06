@@ -75,6 +75,7 @@ public class SimplePollerImpl implements SimplePoller {
 		String newVal = elem.get();
 		Optional<String> lastVal = source.getLastUpdate().map(u -> u.getValue());
 		if (!lastVal.isPresent() || !lastVal.get().equals(newVal)) {
+			logger.info("New value detected {}", newVal);
 			sourceService.onSourceUpdate(source.getSource(), newVal);
 		}
 	}
@@ -103,6 +104,7 @@ public class SimplePollerImpl implements SimplePoller {
 			}
 			resolved.add(new SimplePollSource(source, url, lastUpdate, tagSelect, regex, attribute));
 		}
+		logger.info("Resolved {} sources", resolved.size());
 		return resolved;
 	}
 
