@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.transaction.annotation.Transactional;
 
 import sk.uniba.grman19.processing.poll.SimplePoller;
 import sk.uniba.grman19.service.MailSendingService;
@@ -30,14 +29,12 @@ public class ProcessingManager {
 	}
 
 	@Scheduled(cron = "${mail.daily.cron:-}")
-	@Transactional(readOnly = true)
 	public void sendDailyMail() {
 		logger.info("Sending daily mail");
 		mailSendingService.sendDailyMail();
 	}
 
 	@Scheduled(cron = "${mail.weekly.cron:-}")
-	@Transactional(readOnly = true)
 	public void sendWeeklyMail() {
 		logger.info("Sending weekly mail");
 		mailSendingService.sendWeeklyMail();
