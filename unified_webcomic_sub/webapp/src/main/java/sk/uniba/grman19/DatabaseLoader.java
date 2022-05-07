@@ -41,7 +41,7 @@ import sk.uniba.grman19.service.PostService;
 import sk.uniba.grman19.service.UWSUserService;
 
 @Component
-@Profile("dev & !heroku")
+@Profile("dev & !heroku & !postgres")
 public class DatabaseLoader implements CommandLineRunner {
 
 	@Autowired
