@@ -6,7 +6,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 public class EmailValidator implements ConstraintValidator<ValidEmail, String> {
-	private static final String EMAIL_PATTERN = "^[^\\s@]+@\\w+([.\\w]+)*$";
+	private static final String EMAIL_PATTERN = "^[^\\s@]+@[^\\s@]+$";
 	private static final Pattern EMAIL = Pattern.compile(EMAIL_PATTERN);
 
 	@Override
