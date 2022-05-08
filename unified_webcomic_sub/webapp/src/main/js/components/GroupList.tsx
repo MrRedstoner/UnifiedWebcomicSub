@@ -136,7 +136,7 @@ const GroupList: React.FC<Props> = ({ onRow }) => {
 					<tr>
 						<th>
 							<p>ID</p>
-							<InputBox initialValue="" setValue={onId} />
+							<InputBox initialValue="" setValue={onId} className="idcolumn" />
 						</th>
 						<th>
 							<p>Name</p>

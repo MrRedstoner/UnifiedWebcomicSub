@@ -133,7 +133,7 @@ const PostList: React.FC<Props> = ({ user }) => {
 					<tr>
 						<th>
 							<p>ID</p>
-							<InputBox initialValue="" setValue={onId} />
+							<InputBox initialValue="" setValue={onId} className="idcolumn" />
 						</th>
 						<th>
 							<p>Title</p>

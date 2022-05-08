@@ -41,7 +41,7 @@ const ModeratorsList: React.FC = () => {
 		{
 			key: "id",
 			field: (item:UWSUser)=>item.id,
-			content: <div><p>ID</p><InputBox initialValue="" setValue={onId} /></div>
+			content: <div><p>ID</p><InputBox initialValue="" setValue={onId} className="idcolumn" /></div>
 		},
 		{
 			key: "name",

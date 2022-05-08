@@ -1,7 +1,7 @@
 body {
 	margin: 40px auto;
 	/*maybe calc a max to allow wider*/
-	max-width: 650px;
+	max-width: 800px;
 	line-height: 1.6;
 	font-size: 18px;
 	color: #444;
@@ -35,4 +35,8 @@ td {
 
 nav a {
 	padding-right: 1em;
+}
+
+.idcolumn {
+	width: 5em;
 }

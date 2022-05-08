@@ -6,9 +6,10 @@ type Props = {
 	label?: string;
 	initialValue: string;
 	setValue: (value: string) => void;
+	className?: string
 };
 
-const InputBox: React.FC<Props> = ({ label, initialValue, setValue: setParentValue }) => {
+const InputBox: React.FC<Props> = ({ label, initialValue, setValue: setParentValue, className}) => {
 	const [value, setValue] = useState(initialValue);
 	const [initVal, setInitVal] = useState<string>("");
 	if (initVal !== initialValue) {
@@ -25,11 +26,11 @@ const InputBox: React.FC<Props> = ({ label, initialValue, setValue: setParentVal
 		return (
 			<label>
 				{label + " "}
-				<input type="text" onChange={(event) => onChange(event.target.value)} value={value}></input>
+				<input type="text" onChange={(event) => onChange(event.target.value)} value={value} className={className}></input>
 			</label>);
 	} else {
 		return (
-			<input type="text" onChange={(event) => onChange(event.target.value)} value={value}></input>);
+			<input type="text" onChange={(event) => onChange(event.target.value)} value={value} className={className}></input>);
 	}
 
 };
