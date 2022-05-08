@@ -7,6 +7,10 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @Entity(name = "poll_option")
 public class PollOption extends BaseEntity {
@@ -20,6 +24,9 @@ public class PollOption extends BaseEntity {
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "option")
 	private Set<PollVote> votes;
+	@Transient
+	@JsonInclude(Include.NON_NULL)
+	private Long voteCount;
 
 	public PollOption() {
 	}
@@ -51,5 +58,13 @@ public class PollOption extends BaseEntity {
 
 	public void setVotes(Set<PollVote> votes) {
 		this.votes = votes;
+	}
+
+	public Long getVoteCount() {
+		return voteCount;
+	}
+
+	public void setVoteCount(Long voteCount) {
+		this.voteCount = voteCount;
 	}
 }

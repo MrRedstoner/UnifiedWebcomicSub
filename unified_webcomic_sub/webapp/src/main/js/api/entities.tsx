@@ -73,6 +73,7 @@ type UserPermissionClosure = {
 type PostOption = {
 	id: number;
 	content: string;
+	voteCount: number;
 }
 
 type Post = {

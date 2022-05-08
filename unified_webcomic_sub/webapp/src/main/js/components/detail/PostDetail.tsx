@@ -3,19 +3,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Post, PostOption, UserPermissionClosure } from '../../api/entities';
-import { POST_SERVICE_READ_DETAIL } from '../../api/apiEndpoints';
-import { asyncFetchGet } from '../../api/apiCall';
+import { POST_SERVICE_READ_DETAIL, POST_SERVICE_VOTE } from '../../api/apiEndpoints';
+import { asyncFetchGet, asyncFetchPost } from '../../api/apiCall';
 
 type RowProps = {
     id: number;
     content: string;
+    votes: number;
     onClick: (id: number) => void;
 }
 
-const PostOptionRow: React.FC<RowProps> = ({ id, content, onClick }) => {
+const PostOptionRow: React.FC<RowProps> = ({ id, content, votes, onClick }) => {
     return <div>
         {content}
         <button onClick={() => onClick(id)}>Vote</button>
+        {votes} votes
     </div>;
 }
 
@@ -29,7 +31,7 @@ const PostOptions: React.FC<OptProps> = ({ opts, onVote }) => {
         return <></>;
     }
     //TODO display if voted already
-    const lines = opts.map(opt => <PostOptionRow key={opt.id} id={opt.id} content={opt.content} onClick={onVote} />);
+    const lines = opts.map(opt => <PostOptionRow key={opt.id} id={opt.id} content={opt.content} onClick={onVote} votes={opt.voteCount}/>);
     return (<div>
         {lines}
     </div>);
@@ -55,8 +57,14 @@ const PostDetail: React.FC<Props> = ({ user }) => {
         await asyncFetchGet(POST_SERVICE_READ_DETAIL, data, setPost, setError, setIsLoaded);
     }
 
-    const onVote = (id: number) => {
-        console.log("TODO On vote: ", id)
+    const onVote = async(id: number) => {
+        if(user.registered){
+            //TODO update vote counts?
+            const noop=()=>{};
+            await asyncFetchPost(POST_SERVICE_VOTE, id, noop, noop, noop);
+        } else {
+            window.alert("Register or log in to vote");
+        }
     }
 
     useEffect(() => {

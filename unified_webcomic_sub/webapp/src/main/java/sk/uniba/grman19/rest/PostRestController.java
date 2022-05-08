@@ -21,19 +21,20 @@ import org.springframework.web.bind.annotation.RestController;
 
 import sk.uniba.grman19.filter.FilterColumn;
 import sk.uniba.grman19.models.PaginatedList;
+import sk.uniba.grman19.models.entity.PollVote;
 import sk.uniba.grman19.models.entity.Post;
 import sk.uniba.grman19.models.entity.UWSUser;
 import sk.uniba.grman19.service.PostService;
 import sk.uniba.grman19.service.UWSUserService;
 import sk.uniba.grman19.util.BadRequestException;
 import sk.uniba.grman19.util.Cloner;
-import sk.uniba.grman19.util.NotFoundException;
 
 @RestController
 @RequestMapping("/rest/post")
 public class PostRestController {
 	private static Function<PaginatedList<Post>, PaginatedList<Post>> POSTS = Cloner.clonePaginated();
 	private static Function<Post, Post> POST = Cloner.clone("options");
+	private static Function<PollVote, PollVote> VOTE = Cloner.clone("option");
 
 	@Autowired
 	private PostService postService;
@@ -58,11 +59,11 @@ public class PostRestController {
 	@RequestMapping(method = RequestMethod.GET, path = "/readDetail", produces = MediaType.APPLICATION_JSON_VALUE)
 	public Post readDetail(@RequestParam(name = "id") Long id) {
 		// Optional<UWSUser> user = userDetailsService.getLoggedInUser();
-		return postService.getPost(id).map(POST).orElseThrow(NotFoundException::new);
+		return POST.apply(postService.getPostWithVoteCounts(id));
 	}
 
 	@RequestMapping(method = RequestMethod.POST, path = "/create", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public Long createSource(@RequestBody @Valid NewPost post, BindingResult bindingResult) {
+	public Long createPost(@RequestBody @Valid NewPost post, BindingResult bindingResult) {
 		if (bindingResult.hasErrors()) {
 			throw new BadRequestException(bindingResult);
 		}
@@ -70,6 +71,12 @@ public class PostRestController {
 		UWSUser user = userDetailsService.requireCreatePost();
 		Post updated = postService.createPost(user, post.getTitle(), post.getContent(), post.getOptions());
 		return updated.getId();
+	}
+
+	@RequestMapping(method = RequestMethod.POST, path = "/vote", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public PollVote vote(@RequestBody Long optionId) {
+		UWSUser user = userDetailsService.requireLoggedInUser();
+		return VOTE.apply(postService.setVote(user, optionId));
 	}
 
 	@SuppressWarnings("unused") // false positive on some setters

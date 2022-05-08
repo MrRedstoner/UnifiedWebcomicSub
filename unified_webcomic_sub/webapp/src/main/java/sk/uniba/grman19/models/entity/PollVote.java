@@ -17,6 +17,14 @@ public class PollVote extends BaseEntity {
 	@JoinColumn(name = "option_id")
 	private PollOption option;
 
+	public PollVote() {
+	}
+
+	public PollVote(UWSUser user, PollOption option) {
+		this.user = user;
+		this.option = option;
+	}
+
 	public UWSUser getUser() {
 		return user;
 	}

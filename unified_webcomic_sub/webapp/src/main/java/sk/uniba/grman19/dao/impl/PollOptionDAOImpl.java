@@ -1,5 +1,7 @@
 package sk.uniba.grman19.dao.impl;
 
+import java.util.Optional;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -22,6 +24,11 @@ public class PollOptionDAOImpl implements PollOptionDAO {
 		PollOption pollOption = new PollOption(post, option);
 		entityManager.persist(pollOption);
 		return pollOption;
+	}
+
+	@Override
+	public Optional<PollOption> getOption(Long id) {
+		return Optional.ofNullable(entityManager.find(PollOption.class, id));
 	}
 
 }
