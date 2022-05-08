@@ -1,11 +1,12 @@
 'use strict';
 
 import React, { useState, useEffect } from 'react'
-import { UserPermissionClosure, Source } from '../api/entities';
-import { SOURCE_SERVICE_SAVE_DETAIL, SOURCE_SERVICE_READ_DETAIL, SOURCE_SERVICE_UPDATE_SUBSCRIBE } from '../api/apiEndpoints';
-import { asyncFetchGet, asyncFetchPost } from '../api/apiCall';
-import InputBox from './InputBox';
+import { UserPermissionClosure, Source } from '../../api/entities';
+import { SOURCE_SERVICE_SAVE_DETAIL, SOURCE_SERVICE_READ_DETAIL, SOURCE_SERVICE_UPDATE_SUBSCRIBE } from '../../api/apiEndpoints';
+import { asyncFetchGet, asyncFetchPost } from '../../api/apiCall';
+import InputBox from '../InputBox';
 import SourceAttributeEdit from './SourceAttributeEdit';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const makeSubButton = (user: UserPermissionClosure, source: Source, updateSub: (value: string) => void, updateIgnore: (value: string) => void) => {
 	if (source.ignored) {
@@ -26,11 +27,13 @@ type SourceChange = {
 }
 
 type Props = {
-	id: number;
 	user: UserPermissionClosure;
 }
 
-const SourceDetail: React.FC<Props> = ({ id, user }) => {
+const SourceDetail: React.FC<Props> = ({ user }) => {
+	const navigate = useNavigate();
+	const { id } = useParams();
+	const onBack = () => { navigate("/sources"); };
 	const [error, setError] = useState(null);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [source, setSource] = useState<Source>(null);
@@ -69,11 +72,15 @@ const SourceDetail: React.FC<Props> = ({ id, user }) => {
 
 	if (error) {
 		return (<>
+			<button onClick={onBack}>Back to list</button>
 			<p>Error: {error}</p>
 			<button onClick={() => { setChanges({}); if (source === null) { loadData() } else { setError(null) } }}>Clear</button>
 		</>);
 	} else if (!isLoaded) {
-		return <div>Loading...</div>;
+		return (<>
+				<button onClick={onBack}>Back to list</button>
+				<div>Loading...</div>
+			</>);
 	} else {
 		const updateSubImpl = async (sub: boolean, value: string) => {
 			setIsLoaded(false);
@@ -91,11 +98,12 @@ const SourceDetail: React.FC<Props> = ({ id, user }) => {
 			setEditAttr(!editAttr);
 		}
 
-		const editAttrArea = editAttr ? <SourceAttributeEdit id={id} /> : <></>;
+		const editAttrArea = editAttr ? <SourceAttributeEdit id={Number(id)} /> : <></>;
 
 		if (user.editSource) {
 			return (
 				<>
+					<button onClick={onBack}>Back to list</button>
 					<h3>Source {id}</h3>
 					<InputBox label="Name" initialValue={source.name} setValue={onName} />
 					<br />
@@ -110,6 +118,7 @@ const SourceDetail: React.FC<Props> = ({ id, user }) => {
 		} else {
 			return (
 				<>
+					<button onClick={onBack}>Back to list</button>
 					<h3>Source {id}</h3>
 					<p>Name: {source.name}</p>
 					<p>Description: {source.description}</p>

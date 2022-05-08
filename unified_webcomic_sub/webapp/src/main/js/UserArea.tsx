@@ -7,7 +7,7 @@ import { LoginLink, LogoutLink, RegisterLink } from './Links'
 import { GET_LOGGED_IN_USER } from './api/apiEndpoints'
 import { UWSUser, MailSettings } from './api/entities'
 import MailSettingsPane from './components/MailSettingsPane'
-import SourcesPane from './components/SourcesPane'
+import SourcesPane from './components/panes/SourcesPane'
 import GroupPane from './components/GroupPane'
 import { getPermissionClosure } from './api/entityFunctions';
 import PostsPane from './components/panes/PostsPane';
@@ -66,7 +66,7 @@ const UserArea: React.FC = () => {
 				{getNav(user)}
 				<Routes>
 					<Route path="/index" element={<HomePane user={user} />} />
-					<Route path="/sources" element={<SourcesPane user={userPerms} />} />
+					<Route path="/sources/*" element={<SourcesPane user={userPerms} />} />
 					<Route path="/groups" element={<GroupPane user={userPerms} />} />
 					{user !== null &&
 						<Route path="/settings" element={<MailSettingsPane initMailSettings={user.mailSettings} setMailSettings={updateMailSettings} />} />}

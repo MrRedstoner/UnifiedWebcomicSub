@@ -1,20 +1,24 @@
 'use strict';
 
 import React, { useState } from 'react'
-import { UserPermissionClosure, Source } from '../api/entities';
-import { asyncFetchPost } from '../api/apiCall';
-import { SOURCE_SERVICE_CREATE } from '../api/apiEndpoints';
-import InputBox from './InputBox';
+import { UserPermissionClosure, Source } from '../../api/entities';
+import { asyncFetchPost } from '../../api/apiCall';
+import { SOURCE_SERVICE_CREATE } from '../../api/apiEndpoints';
+import InputBox from '../InputBox';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
 	user: UserPermissionClosure;
-	onCreated: (id: number) => void;
 }
 
-const SourceCreate: React.FC<Props> = ({ user, onCreated }) => {
+const SourceCreate: React.FC<Props> = ({ user }) => {
+	const navigate = useNavigate();
 	const [error, setError] = useState(null);
 	const [isLoaded, setIsLoaded] = useState(true);
 	const [source, setSource] = useState<Source>({ id: null, name: "", description: "" });
+	const onCreated = (id: number)=>{
+		navigate("/sources/show/" + id);
+	}
 
 	const onName = (name: string) => {
 		const newSource = Object.assign({}, source);

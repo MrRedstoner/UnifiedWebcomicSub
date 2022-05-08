@@ -1,9 +1,9 @@
 'use strict';
 
 import React, { useState, useEffect } from 'react'
-import { asyncFetchGet, asyncFetchPost } from '../api/apiCall';
-import { SOURCE_SERVICE_READ_ATTRIBUTES, SOURCE_SERVICE_SAVE_ATTRIBUTES } from '../api/apiEndpoints';
-import InputBox from './InputBox';
+import { asyncFetchGet, asyncFetchPost } from '../../api/apiCall';
+import { SOURCE_SERVICE_READ_ATTRIBUTES, SOURCE_SERVICE_SAVE_ATTRIBUTES } from '../../api/apiEndpoints';
+import InputBox from '../InputBox';
 
 type SourceAttrs = Record<string, string>;
 
