@@ -13,7 +13,7 @@
 
 	<groupId>sk.uniba.grman19</groupId>
 	<artifactId>unified_webcomic_sub_parent</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
 
 	<name>Unified Webcomic Subscriber - Parent</name>
