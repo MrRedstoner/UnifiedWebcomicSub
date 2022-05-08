@@ -1,10 +1,11 @@
 'use strict';
 
 import React, { useState, useEffect } from 'react';
-import { UserPermissionClosure, Group, GroupChild, SourceSubscription, PostSubscription } from '../api/entities';
-import InputBox from './InputBox';
-import { asyncFetchGet, asyncFetchPost } from '../api/apiCall';
-import { GROUP_SERVICE_READ_DETAIL, GROUP_SERVICE_SAVE_DETAIL, GROUP_SERVICE_UPDATE_SUBSCRIBE, GROUP_SERVICE_UPDATE_CHILDREN, GROUP_SERVICE_UPDATE_SOURCES, GROUP_SERVICE_UPDATE_POSTERS } from '../api/apiEndpoints';
+import { UserPermissionClosure, Group, GroupChild, SourceSubscription, PostSubscription } from '../../api/entities';
+import InputBox from '../InputBox';
+import { asyncFetchGet, asyncFetchPost } from '../../api/apiCall';
+import { GROUP_SERVICE_READ_DETAIL, GROUP_SERVICE_SAVE_DETAIL, GROUP_SERVICE_UPDATE_SUBSCRIBE, GROUP_SERVICE_UPDATE_CHILDREN, GROUP_SERVICE_UPDATE_SOURCES, GROUP_SERVICE_UPDATE_POSTERS } from '../../api/apiEndpoints';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const makeSubButton = (user: UserPermissionClosure, group: Group, updateSub: (value: string) => void) => {
 	if (!group.subscribed) {
@@ -83,11 +84,13 @@ type GroupChange = {
 }
 
 type Props = {
-	id: number;
 	user: UserPermissionClosure;
 }
 
-const GroupDetail: React.FC<Props> = ({ id, user }) => {
+const GroupDetail: React.FC<Props> = ({ user }) => {
+	const navigate = useNavigate();
+	const { id } = useParams();
+	const onBack = () => { navigate("/groups"); };
 	const [error, setError] = useState(null);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [group, setGroup] = useState<Group>(null);
@@ -125,11 +128,15 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 
 	if (error) {
 		return (<>
+			<button onClick={onBack}>Back to list</button>
 			<p>Error: {error}</p>
 			<button onClick={() => { setChanges({}); if (group === null) { loadData() } else { setError(null) } }}>Clear</button>
 		</>);
 	} else if (!isLoaded) {
-		return <div>Loading...</div>;
+		return (<>
+				<button onClick={onBack}>Back to list</button>
+				<div>Loading...</div>
+			</>);
 	} else {
 
 		const updateChildren = async (child_id: string, value: string) => {
@@ -176,10 +183,10 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 		}
 		const subButton = makeSubButton(user, group, updateSub);
 
-		//TODO allow showing with null id for create
 		if (user.editGroup) {
 			return (
 				<>
+					<button onClick={onBack}>Back to list</button>
 					<h3>Group {id}</h3>
 					<InputBox label="Name" initialValue={group.name} setValue={onName} />
 					<br />
@@ -195,6 +202,7 @@ const GroupDetail: React.FC<Props> = ({ id, user }) => {
 		} else {
 			return (
 				<>
+					<button onClick={onBack}>Back to list</button>
 					<h3>Group {id}</h3>
 					<p>Name: {group.name}</p>
 					<p>Description: {group.description}</p>

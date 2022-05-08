@@ -1,10 +1,11 @@
 'use strict';
 
 import React, { useState, useEffect } from 'react';
-import { Group } from '../api/entities'
-import { GROUP_SERVICE_READ } from '../api/apiEndpoints'
-import { asyncFetchGet } from '../api/apiCall'
-import InputBox from './InputBox'
+import { Group, UserPermissionClosure } from '../../api/entities'
+import { GROUP_SERVICE_READ } from '../../api/apiEndpoints'
+import { asyncFetchGet } from '../../api/apiCall'
+import InputBox from '../InputBox'
+import { useNavigate } from 'react-router-dom';
 
 const pageSize = 5;
 
@@ -50,16 +51,24 @@ type SourceList = {
 }
 
 type Props = {
-	onRow: (id: number) => void
+	user: UserPermissionClosure;
 }
 
-const GroupList: React.FC<Props> = ({ onRow }) => {
+const GroupList: React.FC<Props> = ({ user }) => {
+	const navigate = useNavigate();
 	const [error, setError] = useState<string>(null);
 	const [isLoaded, setIsLoaded] = useState(false);
 	const [sourceList, setSourceList] = useState<SourceList>({ total: 0, items: [] });
 	const [search, setSearch] = useState<SearchArgs>({})
 	const [page, setPage] = useState<PageArgs>(firstPage);
+	const onRow=(source:number)=>{
+		navigate("/groups/show/" + source);
+	}
+	const onNew = () => {
+		navigate("/groups/new");
+	}
 
+	const newBtn = <button disabled={!user.createSource} onClick={onNew}>New</button>
 
 	const loadData = async () => {
 		setIsLoaded(false);
@@ -123,7 +132,8 @@ const GroupList: React.FC<Props> = ({ onRow }) => {
 	const next = <button disabled={((page.number + 1) * pageSize) >= sourceList.total} onClick={nextPage}>Next</button>;
 	const last = <button disabled={((page.number + 1) * pageSize) >= sourceList.total} onClick={lastPage}>Last</button>;
 
-	return (
+	return (<>
+		{newBtn}
 		<div>
 			<p>Showing page {page.number + 1} of {sourceList.total} items</p>
 			{first}
@@ -152,7 +162,8 @@ const GroupList: React.FC<Props> = ({ onRow }) => {
 					{rows}
 				</tbody>
 			</table>
-		</div>);
+		</div>
+		</>);
 };
 
 export default GroupList;

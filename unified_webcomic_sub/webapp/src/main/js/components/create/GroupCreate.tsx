@@ -1,20 +1,24 @@
 'use strict';
 
 import React, { useState } from 'react';
-import { UserPermissionClosure, Group } from "../api/entities";
-import InputBox from './InputBox';
-import { asyncFetchPost } from '../api/apiCall';
-import { GROUP_SERVICE_CREATE } from '../api/apiEndpoints';
+import { UserPermissionClosure, Group } from "../../api/entities";
+import InputBox from '../InputBox';
+import { asyncFetchPost } from '../../api/apiCall';
+import { GROUP_SERVICE_CREATE } from '../../api/apiEndpoints';
+import { useNavigate } from 'react-router-dom';
 
 type Props = {
 	user: UserPermissionClosure
-	onCreated: (id: number) => void;
 }
 
-const GroupCreate: React.FC<Props> = ({ user, onCreated }) => {
+const GroupCreate: React.FC<Props> = ({ user }) => {
+	const navigate = useNavigate();
 	const [error, setError] = useState(null);
 	const [isLoaded, setIsLoaded] = useState(true);
 	const [group, setGroup] = useState<Group>({ id: null, name: "", description: "" });
+	const onCreated = (id: number)=>{
+		navigate("/groups/show/" + id);
+	}
 
 	const onName = (name: string) => {
 		const newGroup = Object.assign({}, group);
