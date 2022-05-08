@@ -1,13 +1,9 @@
 package sk.uniba.grman19.processing.mail;
 
-import java.lang.invoke.MethodHandles;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
 import org.jsoup.nodes.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
@@ -20,7 +16,6 @@ import org.springframework.stereotype.Component;
 @Profile("!dev")
 @Component
 public class EmailSenderImpl implements EmailSender {
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
 	@Value("${mail.from.address:noreply.uniwebsub@gmail.com}")
 	private String FROM_ADDRESS;
@@ -28,7 +23,7 @@ public class EmailSenderImpl implements EmailSender {
 	@Autowired
 	private JavaMailSender emailSender;
 
-	public void sendSimpleMessage(String to, String subject, String text) {
+	public void sendSimpleMessage(String to, String subject, String text) throws Exception {
 		try {
 			SimpleMailMessage message = new SimpleMailMessage();
 			message.setFrom(FROM_ADDRESS);
@@ -38,11 +33,11 @@ public class EmailSenderImpl implements EmailSender {
 
 			emailSender.send(message);
 		} catch (MailException e) {
-			logger.error("Exception when sending mail", e);
+			throw new Exception("Exception when sending mail", e);
 		}
 	}
 
-	public void sendHtmlMail(String to, String subject, Document content) {
+	public void sendHtmlMail(String to, String subject, Document content) throws Exception {
 		try {
 			MimeMessage message = emailSender.createMimeMessage();
 			MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -53,7 +48,7 @@ public class EmailSenderImpl implements EmailSender {
 
 			emailSender.send(message);
 		} catch (MailException | MessagingException e) {
-			logger.error("Exception when sending mail", e);
+			throw new Exception("Exception when sending mail", e);
 		}
 	}
 }
