@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>unified_webcomic_sub_webapp</artifactId>
-
+	<version>1.0.1</version>
 	<name>Unified Webcomic Subscriber</name>
 
 	<properties>

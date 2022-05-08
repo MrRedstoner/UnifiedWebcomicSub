@@ -66,7 +66,7 @@ type PostersProps = {
 const GroupPostersView: React.FC<PostersProps> = ({ canEdit, posters, updatePosters }) => {
 	const childIds = posters.map((gc) => gc.user.id.toString());
 	if (!canEdit) {
-		return (<p>Sources: {childIds.join(", ")}</p>);
+		return (<p>Posters: {childIds.join(", ")}</p>);
 	} else {
 		const [childId, setChildId] = useState<string>("")
 		const contains = childIds.includes(childId);
