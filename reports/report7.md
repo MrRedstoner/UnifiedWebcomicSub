@@ -48,6 +48,7 @@ Celkovo implementovane:
 
 Chyba implementacia
  - Komentare na posty - nie su nutne pre pouzitelnost aplikacie, pokojne sa da pouzit nejaka externa stranka na socialnu interakciu
+ - manualne nastavenie seen update
 
 Celkovy cas: asi 130-155 hodin
  - Zhruba 2x to co bolo v plane
